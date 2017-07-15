@@ -1,0 +1,13 @@
+<resources>
+    <!-- Activities & Services -->
+    <string name="app_name">Edge-Notification</string>
+    <string name="service_name">Marc INC</string>
+
+    <!-- Menu Strings-->
+    <string name="menu_btn_permission">Permission</string>
+    <string name="image_description">pasfoto</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="app_icon">App Icon</string>
+
+
+</resources>
