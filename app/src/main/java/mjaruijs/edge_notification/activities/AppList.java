@@ -2,6 +2,7 @@ package mjaruijs.edge_notification.activities;
 
 import android.app.Activity;
 import android.database.DataSetObserver;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ class AppList implements ListAdapter {
     private List<AppItem> apps;
 
     AppList(Activity context) {
+
         this.context = context;
         apps = new ArrayList<>();
     }
@@ -54,6 +56,8 @@ class AppList implements ListAdapter {
         return apps.get(position);
     }
 
+    public AppItem getAppItem(int position) { return apps.get(position); }
+
     @Override
     public long getItemId(int position) {
         return 0;
@@ -72,6 +76,25 @@ class AppList implements ListAdapter {
         ImageView imageView = (ImageView) rowView.findViewById(R.id.app_image);
         txtTitle.setText(apps.get(position).getName());
         imageView.setImageDrawable(apps.get(position).getIcon());
+
+        return rowView;
+    }
+
+    public View getView(int position) {
+        LayoutInflater inflater = context.getLayoutInflater();
+        View rowView = inflater.inflate(R.layout.list_item, null, false);
+        TextView txtTitle = (TextView) rowView.findViewById(R.id.app_text);
+        ImageView imageView = (ImageView) rowView.findViewById(R.id.app_image);
+        txtTitle.setText(apps.get(position).getName());
+        imageView.setImageDrawable(apps.get(position).getIcon());
+        rowView.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Log.i("AppList", "TESTTTT");
+
+            }
+        });
         return rowView;
     }
 

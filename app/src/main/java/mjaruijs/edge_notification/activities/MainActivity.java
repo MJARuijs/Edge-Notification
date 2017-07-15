@@ -30,6 +30,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,40 +104,55 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         strings = new String[applicationPackages.size()];
         icons = new Drawable[applicationPackages.size()];
-
+        
         for(int i = 0; i < applicationPackages.size(); i++) {
             strings[i] = applicationPackages.get(i).appname;
             icons[i] = applicationPackages.get(i).icon;
             apps.add(new AppItem(applicationPackages.get(i).appname, applicationPackages.get(i).icon));
+//            apps.getAppItem(i).setOnClickListener(new View.OnClickListener() {
+//
+//                @Override
+//                public void onClick(View v) {
+//                    Log.i("AppList", "TESTTTT");
+//
+//                }
+//            });
         }
+
         apps.sort();
         builder = new AlertDialog.Builder(MainActivity.this, R.style.Alert_Dialog_Dark);
         builder.setTitle("Pick an app");
-        builder.setAdapter(apps, new DialogInterface.OnClickListener() {
+        builder.setAdapter(apps, new AlertDialog.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
-                Log.i(TAG, "TEST");
-//                AppItem app = (AppItem) apps.getItem(which);
-//                String strName = app.getName();
-//                Drawable icon = app.getIcon();
-//
-//                AlertDialog.Builder builderInner = new AlertDialog.Builder(MainActivity.this);
-//
-//                builderInner.setMessage(strName);
-//                builderInner.setIcon(icon);
-//                builderInner.setTitle("Your Selected Item is");
-//                builderInner.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-//
-//                    @Override
-//                    public void onClick(DialogInterface dialog,int which) {
-//                        dialog.dismiss();
-//                    }
-//                });
-//                builderInner.show();
+                Log.i(TAG, "TESTTTT");
             }
         });
+//        builder.setAdapter(apps, new AlertDialog.OnClickListener() {
+//
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                Log.i(TAG, "TEST");
+////                AppItem app = (AppItem) apps.getItem(which);
+////                String strName = app.getName();
+////                Drawable icon = app.getIcon();
+////
+////                AlertDialog.Builder builderInner = new AlertDialog.Builder(MainActivity.this);
+////
+////                builderInner.setMessage(strName);
+////                builderInner.setIcon(icon);
+////                builderInner.setTitle("Your Selected Item is");
+////                builderInner.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+////
+////                    @Override
+////                    public void onClick(DialogInterface dialog,int which) {
+////                        dialog.dismiss();
+////                    }
+////                });
+////                builderInner.show();
+//            }
+//        });
 
         // Floating Action Button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -162,6 +179,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         IntentFilter filter = new IntentFilter();
         filter.addAction("mjaruijs.edge_notification.NOTIFICATION_LISTENER");
         registerReceiver(notificationReceiver, filter);
+    }
+
+    public void onClick(View v){
+        //AppItem app = (AppItem) apps.getItem(which);
+
+        TextView textView = (TextView) v.findViewById(R.id.app_text);
+        ImageView icon = (ImageView) v.findViewById(R.id.app_image);
+
+        AlertDialog.Builder builderInner = new AlertDialog.Builder(MainActivity.this);
+
+        builderInner.setMessage(textView.getText());
+        builderInner.setIcon(icon.getDrawable());
+        builderInner.setTitle("Your Selected Item is");
+        builderInner.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog,int which) {
+
+                dialog.dismiss();
+            }
+        });
+        builderInner.show();
+        Log.i(TAG, "TEST") ;
     }
 
     private ArrayList<PInfo> getInstalledApps(boolean getSysPackages) {
