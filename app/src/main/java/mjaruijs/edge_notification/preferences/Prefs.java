@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import mjaruijs.edge_notification.services.AppList;
+
 public class Prefs {
 
     public boolean enabled;
-
+    public AppList apps;
     private SharedPreferences prefs;
 
     public Prefs(Context context) {
@@ -16,6 +18,7 @@ public class Prefs {
 
     public void apply() {
         enabled = prefs.getBoolean(KEYS.ENABLED.toString(), true);
+
     }
 
     public enum KEYS {

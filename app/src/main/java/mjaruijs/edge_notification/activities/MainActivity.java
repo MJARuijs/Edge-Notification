@@ -33,6 +33,7 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +44,7 @@ import mjaruijs.edge_notification.data.CardList;
 import mjaruijs.edge_notification.data.PInfo;
 import mjaruijs.edge_notification.fragments.SettingsFragment;
 import mjaruijs.edge_notification.preferences.Prefs;
+import mjaruijs.edge_notification.services.AppList;
 import mjaruijs.edge_notification.services.RVAdapter;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
@@ -56,13 +58,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private NotificationReceiver notificationReceiver;
     private Display display;
     private String state;
-
+    private CardList cards;
     private boolean proximityClose = false;
     String TAG = getClass().getSimpleName();
     public static final int FULL_WAKE_LOCK = 0x0000001a;
 
     public String[] strings;
-
     public Drawable[] icons;
     //public static final int SCREEN_BRIGHT_WAKE_LOCK = 0x0000000a;
 
@@ -89,10 +90,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
 
         appCardView.setLayoutManager(llm);
-
-        CardList cards = new CardList();
+        File file = getFilesDir();
+        cards = new CardList(file);
         cards.addCard(new AppCard("WhatsApp", R.mipmap.ic_launcher, Color.GREEN));
         cards.addCard(new AppCard("FaceBook", R.mipmap.ic_launcher, Color.BLUE));
+
 
         RVAdapter appCardAdapter = new RVAdapter(cards);
         appCardView.setAdapter(appCardAdapter);
@@ -104,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         strings = new String[applicationPackages.size()];
         icons = new Drawable[applicationPackages.size()];
-        
+
         for(int i = 0; i < applicationPackages.size(); i++) {
             strings[i] = applicationPackages.get(i).appname;
             icons[i] = applicationPackages.get(i).icon;
@@ -126,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.i(TAG, "TESTTTT");
+
             }
         });
 //        builder.setAdapter(apps, new AlertDialog.OnClickListener() {
@@ -192,15 +194,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         builderInner.setMessage(textView.getText());
         builderInner.setIcon(icon.getDrawable());
         builderInner.setTitle("Your Selected Item is");
+
+        builderInner.setNegativeButton("Cancel",  new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog,int which) {
+                cards.readFromXML();
+                dialog.dismiss();
+            }
+        });
         builderInner.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog,int which) {
-
+                cards.writeToFile();
                 dialog.dismiss();
             }
         });
         builderInner.show();
+
         Log.i(TAG, "TEST") ;
     }
 

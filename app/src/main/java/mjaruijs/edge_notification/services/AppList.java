@@ -1,4 +1,4 @@
-package mjaruijs.edge_notification.activities;
+package mjaruijs.edge_notification.services;
 
 import android.app.Activity;
 import android.database.DataSetObserver;
@@ -17,22 +17,21 @@ import java.util.List;
 import mjaruijs.edge_notification.R;
 import mjaruijs.edge_notification.data.AppItem;
 
-class AppList implements ListAdapter {
+public class AppList implements ListAdapter {
 
     private Activity context;
     private List<AppItem> apps;
 
-    AppList(Activity context) {
-
+    public AppList(Activity context) {
         this.context = context;
         apps = new ArrayList<>();
     }
 
-    void add(AppItem app) {
+    public void add(AppItem app) {
         apps.add(app);
     }
 
-    void sort() {
+    public void sort() {
         Collections.sort(apps);
     }
 
@@ -97,6 +96,7 @@ class AppList implements ListAdapter {
         });
         return rowView;
     }
+
 
     @Override
     public int getItemViewType(int position) {
