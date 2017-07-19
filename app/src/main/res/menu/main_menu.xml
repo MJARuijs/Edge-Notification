@@ -14,4 +14,9 @@
         android:id="@+id/menu_permission"
         android:title="@string/menu_btn_permission"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/delete_all"
+        android:title="@string/delete_all"
+        app:showAsAction="never" />
 </menu>

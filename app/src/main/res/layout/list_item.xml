@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:id="@+id/app_card_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_margin="3dp"
     android:gravity="center_vertical"
     android:onClick="onClick"
@@ -12,20 +11,21 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/app_image"
+            android:id="@+id/app_icon"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="3dp"
-            android:contentDescription="@string/app_icon" />
+            android:contentDescription="@string/app_icon"
+            android:tag="@string/app_icon" />
 
         <TextView
             android:id="@+id/app_text"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_toEndOf="@+id/app_image"
+            android:layout_toEndOf="@+id/app_icon"
             android:checkMark="?android:attr/listChoiceIndicatorSingle"
             android:ellipsize="marquee"
             android:gravity="center_vertical"

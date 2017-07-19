@@ -2,7 +2,6 @@ package mjaruijs.edge_notification.services;
 
 import android.app.Activity;
 import android.database.DataSetObserver;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,31 +71,12 @@ public class AppList implements ListAdapter {
         LayoutInflater inflater = context.getLayoutInflater();
         View rowView = inflater.inflate(R.layout.list_item, null, false);
         TextView txtTitle = (TextView) rowView.findViewById(R.id.app_text);
-        ImageView imageView = (ImageView) rowView.findViewById(R.id.app_image);
+        ImageView imageView = (ImageView) rowView.findViewById(R.id.app_icon);
         txtTitle.setText(apps.get(position).getName());
         imageView.setImageDrawable(apps.get(position).getIcon());
-
+        imageView.setTag(apps.get(position).getIcon());
         return rowView;
     }
-
-    public View getView(int position) {
-        LayoutInflater inflater = context.getLayoutInflater();
-        View rowView = inflater.inflate(R.layout.list_item, null, false);
-        TextView txtTitle = (TextView) rowView.findViewById(R.id.app_text);
-        ImageView imageView = (ImageView) rowView.findViewById(R.id.app_image);
-        txtTitle.setText(apps.get(position).getName());
-        imageView.setImageDrawable(apps.get(position).getIcon());
-        rowView.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Log.i("AppList", "TESTTTT");
-
-            }
-        });
-        return rowView;
-    }
-
 
     @Override
     public int getItemViewType(int position) {

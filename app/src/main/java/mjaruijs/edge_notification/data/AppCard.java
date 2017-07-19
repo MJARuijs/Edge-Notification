@@ -1,12 +1,14 @@
 package mjaruijs.edge_notification.data;
 
+import android.graphics.drawable.Drawable;
+
 public class AppCard {
 
     private String appName;
-    private int appIcon;
+    private Drawable appIcon;
     private int notificationColor;
 
-    public AppCard(String appName, int appIcon, int notificationColor) {
+    public AppCard(String appName, Drawable appIcon, int notificationColor) {
         this.appName = appName;
         this.appIcon = appIcon;
         this.notificationColor = notificationColor;
@@ -16,7 +18,7 @@ public class AppCard {
         return appName;
     }
 
-    public int getAppIcon() {
+    public Drawable getAppIcon() {
         return appIcon;
     }
 

@@ -55,7 +55,7 @@ public class NotificationListener extends NotificationListenerService {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getStringExtra("command").equals("clearall")) {
+            if(intent.getStringExtra("command").equals("clearAll")) {
                 NotificationListener.this.cancelAllNotifications();
             }
             else if(intent.getStringExtra("command").equals("list_item")) {

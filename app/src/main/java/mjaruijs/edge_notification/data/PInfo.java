@@ -1,15 +1,8 @@
 package mjaruijs.edge_notification.data;
 
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 public class PInfo {
-    public String appname = "";
-    public String pname = "";
-    public String versionName = "";
-    public int versionCode = 0;
+    public String appName = "";
     public Drawable icon;
-    public void prettyPrint() {
-        Log.i("PINFO", appname + "\t" + pname + "\t" + versionName + "\t" + versionCode);
-    }
 }

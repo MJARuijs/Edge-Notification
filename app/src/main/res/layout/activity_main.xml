@@ -26,9 +26,6 @@
 
     </LinearLayout>
 
-    <!--<include layout="@layout/app_list" />-->
     <include layout="@layout/content_main" />
-
-
 
 </LinearLayout>

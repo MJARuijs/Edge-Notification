@@ -4,12 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import mjaruijs.edge_notification.services.AppList;
-
 public class Prefs {
 
+    public boolean initialized;
     public boolean enabled;
-    public AppList apps;
+    public boolean permissionGranted;
+
     private SharedPreferences prefs;
 
     public Prefs(Context context) {
@@ -17,12 +17,19 @@ public class Prefs {
     }
 
     public void apply() {
-        enabled = prefs.getBoolean(KEYS.ENABLED.toString(), true);
+        enabled = prefs.getBoolean(KEYS.ENABLED.toString(), false);
+        initialized = prefs.getBoolean(KEYS.INITIALIZED.toString(), false);
+        permissionGranted = prefs.getBoolean(KEYS.PERMISSION_GRANTED.toString(), false);
+    }
 
+    public void setBool(String key, boolean value) {
+        prefs.edit().putBoolean(key, value).apply();
     }
 
     public enum KEYS {
-        ENABLED("enabled");
+        ENABLED("enabled"),
+        INITIALIZED("initialized"),
+        PERMISSION_GRANTED("permissionGranted");
 
         private final String id;
 

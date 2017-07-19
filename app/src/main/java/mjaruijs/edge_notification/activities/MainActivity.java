@@ -1,21 +1,14 @@
 package mjaruijs.edge_notification.activities;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -23,13 +16,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
-import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -41,182 +31,135 @@ import mjaruijs.edge_notification.R;
 import mjaruijs.edge_notification.data.AppCard;
 import mjaruijs.edge_notification.data.AppItem;
 import mjaruijs.edge_notification.data.CardList;
+import mjaruijs.edge_notification.data.IconMap;
 import mjaruijs.edge_notification.data.PInfo;
 import mjaruijs.edge_notification.fragments.SettingsFragment;
 import mjaruijs.edge_notification.preferences.Prefs;
 import mjaruijs.edge_notification.services.AppList;
 import mjaruijs.edge_notification.services.RVAdapter;
+import mjaruijs.edge_notification.services.StarterService;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
-
-    private SensorManager mSensorManager;
-    private Sensor mProximity;
-    private static final int SENSOR_SENSITIVITY = 4;
-
-    private AlertDialog.Builder builder;
-
-    private NotificationReceiver notificationReceiver;
-    private Display display;
-    private String state;
+public class MainActivity extends AppCompatActivity  {
+    private RVAdapter appCardAdapter;
+    private IconMap iconMap;
     private CardList cards;
-    private boolean proximityClose = false;
     String TAG = getClass().getSimpleName();
-    public static final int FULL_WAKE_LOCK = 0x0000001a;
-
+    private Intent starterService;
+    private Dialog dia;
     public String[] strings;
     public Drawable[] icons;
     //public static final int SCREEN_BRIGHT_WAKE_LOCK = 0x0000000a;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "CREATED");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        starterService = new Intent(getApplicationContext(), StarterService.class);
 
-        // Toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+       iconMap = new IconMap();
 
         // Preferences
         Prefs prefs = new Prefs(getApplicationContext());
         prefs.apply();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.preferences_holder, new SettingsFragment())
-                .commitAllowingStateLoss();
 
-        // Recycle View
-        RecyclerView appCardView = (RecyclerView) findViewById(R.id.recycle_view);
+//        if(!prefs.initialized) {
+//            startActivity(new Intent(getApplicationContext(), IntroActivity.class));
+//            finish();
+//        } else {
 
-        LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
+            // Toolbar
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
 
-        appCardView.setLayoutManager(llm);
-        File file = getFilesDir();
-        cards = new CardList(file);
-        cards.addCard(new AppCard("WhatsApp", R.mipmap.ic_launcher, Color.GREEN));
-        cards.addCard(new AppCard("FaceBook", R.mipmap.ic_launcher, Color.BLUE));
+            // Switch
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.preferences_holder, new SettingsFragment())
+                    .commitAllowingStateLoss();
 
+            Intent starterServiceIntent = new Intent(getApplicationContext(), StarterService.class);
 
-        RVAdapter appCardAdapter = new RVAdapter(cards);
-        appCardView.setAdapter(appCardAdapter);
+            stopService(starterServiceIntent);
+            startService(starterServiceIntent);
 
-        // Get a list of installed apps.
-        ArrayList<PInfo> applicationPackages = getInstalledApps(false);
+            // Recycle View
+            RecyclerView appCardView = (RecyclerView) findViewById(R.id.recycle_view);
 
-        final AppList apps = new AppList(MainActivity.this);
+            LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
 
-        strings = new String[applicationPackages.size()];
-        icons = new Drawable[applicationPackages.size()];
+            appCardView.setLayoutManager(llm);
+            File file = getFilesDir();
 
-        for(int i = 0; i < applicationPackages.size(); i++) {
-            strings[i] = applicationPackages.get(i).appname;
-            icons[i] = applicationPackages.get(i).icon;
-            apps.add(new AppItem(applicationPackages.get(i).appname, applicationPackages.get(i).icon));
-//            apps.getAppItem(i).setOnClickListener(new View.OnClickListener() {
-//
-//                @Override
-//                public void onClick(View v) {
-//                    Log.i("AppList", "TESTTTT");
-//
-//                }
-//            });
-        }
-
-        apps.sort();
-        builder = new AlertDialog.Builder(MainActivity.this, R.style.Alert_Dialog_Dark);
-        builder.setTitle("Pick an app");
-        builder.setAdapter(apps, new AlertDialog.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
+            // Get a list of installed apps.
+            ArrayList<PInfo> applicationPackages = new ArrayList<>();
+            try {
+                applicationPackages = getInstalledApps(false);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
             }
-        });
-//        builder.setAdapter(apps, new AlertDialog.OnClickListener() {
-//
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                Log.i(TAG, "TEST");
-////                AppItem app = (AppItem) apps.getItem(which);
-////                String strName = app.getName();
-////                Drawable icon = app.getIcon();
-////
-////                AlertDialog.Builder builderInner = new AlertDialog.Builder(MainActivity.this);
-////
-////                builderInner.setMessage(strName);
-////                builderInner.setIcon(icon);
-////                builderInner.setTitle("Your Selected Item is");
-////                builderInner.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-////
-////                    @Override
-////                    public void onClick(DialogInterface dialog,int which) {
-////                        dialog.dismiss();
-////                    }
-////                });
-////                builderInner.show();
-//            }
-//        });
 
-        // Floating Action Button
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+            CardList.initialize(file);
+            cards = CardList.readFromXML(iconMap);
 
-        fab.setOnClickListener(new View.OnClickListener() {
+            appCardAdapter = new RVAdapter(cards);
 
-            @Override
-            public void onClick(View view) {
-                builder.show();
+            AppList apps = new AppList(MainActivity.this);
+            appCardView.setAdapter(appCardAdapter);
+
+            strings = new String[applicationPackages.size()];
+            icons = new Drawable[applicationPackages.size()];
+
+            for (int i = 0; i < applicationPackages.size(); i++) {
+                strings[i] = applicationPackages.get(i).appName;
+                icons[i] = applicationPackages.get(i).icon;
+                apps.add(new AppItem(applicationPackages.get(i).appName, applicationPackages.get(i).icon));
             }
-        });
 
-        // Proximity Sensor
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+            apps.sort();
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.Alert_Dialog_Dark);
+            builder.setTitle("Pick an app");
+            builder.setAdapter(apps, new AlertDialog.OnClickListener() {
 
-        // Display State
-        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        display = wm.getDefaultDisplay();
-        state = stateToString(display.getState());
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
 
-        // Notification Receiver
-        notificationReceiver = new NotificationReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("mjaruijs.edge_notification.NOTIFICATION_LISTENER");
-        registerReceiver(notificationReceiver, filter);
+                }
+            });
+
+            dia = builder.create();
+
+            // Floating Action Button
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+            fab.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View view) {
+                    dia.show();
+
+                }
+            });
+
+        //}
     }
 
     public void onClick(View v){
-        //AppItem app = (AppItem) apps.getItem(which);
-
         TextView textView = (TextView) v.findViewById(R.id.app_text);
-        ImageView icon = (ImageView) v.findViewById(R.id.app_image);
+        ImageView icon = (ImageView) v.findViewById(R.id.app_icon);
 
-        AlertDialog.Builder builderInner = new AlertDialog.Builder(MainActivity.this);
-
-        builderInner.setMessage(textView.getText());
-        builderInner.setIcon(icon.getDrawable());
-        builderInner.setTitle("Your Selected Item is");
-
-        builderInner.setNegativeButton("Cancel",  new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog,int which) {
-                cards.readFromXML();
-                dialog.dismiss();
-            }
-        });
-        builderInner.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog,int which) {
-                cards.writeToFile();
-                dialog.dismiss();
-            }
-        });
-        builderInner.show();
-
-        Log.i(TAG, "TEST") ;
+        cards.addCard(new AppCard(textView.getText().toString(),
+                icon.getDrawable(),
+                Color.WHITE));
+        dia.hide();
+        appCardAdapter.notifyDataSetChanged();
     }
 
-    private ArrayList<PInfo> getInstalledApps(boolean getSysPackages) {
+    private void restartService() {
+        stopService(starterService);
+        startService(starterService);
+    }
+
+    // TODO: Add a checkbox that allows the user to add system apps too.
+    private ArrayList<PInfo> getInstalledApps(boolean getSysPackages) throws PackageManager.NameNotFoundException {
         ArrayList<PInfo> res = new ArrayList<>();
 
         int flags = PackageManager.GET_META_DATA |
@@ -227,11 +170,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         for (PackageInfo appInfo : applications) {
             if ((appInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1) {
-                Log.i(TAG, "APP: " + appInfo.applicationInfo.loadLabel(getPackageManager()).toString());
                 PInfo newInfo = new PInfo();
-                newInfo.appname = appInfo.applicationInfo.loadLabel(getPackageManager()).toString();
+                newInfo.appName = appInfo.applicationInfo.loadLabel(getPackageManager()).toString();
                 newInfo.icon = appInfo.applicationInfo.loadIcon(getPackageManager());
                 res.add(newInfo);
+                iconMap.add(newInfo.appName, newInfo.icon);
             }
         } return res;
     }
@@ -251,6 +194,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 startActivity(i);
                 return true;
 
+            case R.id.delete_all:
+                cards.clear();
+                appCardAdapter.notifyDataSetChanged();
+                restartService();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -259,13 +207,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onResume() {
         super.onResume();
-        mSensorManager.registerListener(this, mProximity, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(notificationReceiver);
+        cards.writeToFile();
     }
 
     @Override
@@ -274,71 +221,4 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onSaveInstanceState(outState);
     }
 
-    public String stateToString(int state) {
-        switch (state) {
-            case 0:
-                return "UNKNOWN";
-            case 1:
-                return "OFF";
-            case 2:
-                return "ON";
-            case 3:
-                return "DOZE";
-            case 4:
-                return "DOZE_SUSPENDED";
-            default:
-                return Integer.toString(state);
-        }
-    }
-
-    private void unlockScreen() {
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-
-        PowerManager.WakeLock wakeLock = pm.newWakeLock(FULL_WAKE_LOCK
-                | LayoutParams.FLAG_TURN_SCREEN_ON
-                | PowerManager.ACQUIRE_CAUSES_WAKEUP
-               // | PowerManager.SCREEN_BRIGHT_WAKE_LOCK
-                | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
-
-        wakeLock.acquire();
-        Log.i(TAG, "Unlocked");
-        wakeLock.release();
-    }
-
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-            if (event.values[0] >= -SENSOR_SENSITIVITY && event.values[0] <= SENSOR_SENSITIVITY) {
-                proximityClose = true;
-                Log.i(TAG, "Close");
-                //near
-                //Toast.makeText(getApplicationContext(), "near", Toast.LENGTH_SHORT).show();
-            } else {
-                Log.i(TAG, "Far");
-                proximityClose = false;
-                //far
-                //Toast.makeText(getApplicationContext(), "far", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
-
-    class NotificationReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            state = stateToString(display.getState());
-            Log.i(TAG, "Display state: " + state);
-
-            if (state.equals("OFF")  && proximityClose) {
-                unlockScreen();
-            }
-
-        }
-    }
 }

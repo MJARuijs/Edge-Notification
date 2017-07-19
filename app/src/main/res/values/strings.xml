@@ -5,9 +5,15 @@
 
     <!-- Menu Strings-->
     <string name="menu_btn_permission">Permission</string>
-    <string name="image_description">pasfoto</string>
+    <string name="image_description">pasPhoto</string>
     <string name="title_activity_main2">Main2Activity</string>
-    <string name="app_icon">App Icon</string>
+    <string name="app_icon">app_icon</string>
+    <string name="delete_all">Delete all</string>
+
+    <string name="title_activity_intro">Intro Activity</string>
+    <string name="intro_welcome">Welcome!</string>
+    <string name="intro_permission">Permission</string>
+    <string name="intro_done">Done</string>
 
 
 </resources>

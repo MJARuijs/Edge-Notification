@@ -1,5 +1,6 @@
 package mjaruijs.edge_notification.data;
 
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import java.io.File;
@@ -13,13 +14,16 @@ import java.util.Scanner;
 
 public class CardList {
 
-    private List<AppCard> cards;
-    private final String fileName = "app_array.txt";
-    private File appFile;
+    private static List<AppCard> cards;
 
-    public CardList(File file) {
+    private static File appFile;
+
+    private CardList(File file) {
         cards = new ArrayList<>();
-        //this.context = context;
+    }
+
+    public static void initialize(File file) {
+        final String fileName = "app_array.txt";
         appFile = new File(file, fileName);
     }
 
@@ -39,13 +43,16 @@ public class CardList {
         return cards.size();
     }
 
-    public CardList readFromXML() {
+    public void clear() {
+        cards.clear();
+    }
+
+    public static CardList readFromXML(IconMap iconMap) {
         CardList cardList = new CardList(appFile);
         String line;
         String appName = "";
-        String appIcon;
+        Drawable appIcon = null;
         String appColor;
-        int iconInt = 0;
         int colorInt = 0;
         try {
             Scanner sc = new Scanner(appFile);
@@ -54,48 +61,42 @@ public class CardList {
                 line = sc.nextLine();
                 if (line.contains("<name>")) {
                     appName = getString(line);
-                    Log.i("APPNAME", appName);
-                } else if (line.contains("<icon>"))  {
-                    appIcon = getString(line);
-                    iconInt = Integer.getInteger(appIcon);
-                    Log.i("APPICON", appIcon);
+                    appIcon = iconMap.getValue(appName);
+//                } else if (line.contains("<icon>"))  {
+//                    appIcon = getString(line);
+//                    if (!appIcon.equals("null"))
+//                        iconInt = Integer.parseInt(appIcon);
                 } else if (line.contains("<color")) {
                     appColor = getString(line);
-                    colorInt = Integer.getInteger(appColor);
-                    Log.i("APPCOLOR", appColor);
-                } else if (line.contains("</app-card>")) {
 
+                    colorInt = Integer.parseInt(appColor);
+                } else if (line.contains("</app-card>")) {
                     cardList.addCard(new
                             AppCard(appName,
-                            iconInt,
+                            appIcon,
                             colorInt));
                 }
             } while(!line.contains("</resources>"));
 
 
-            Log.i("XMLPARSER", cardList.toString());
+            Log.i("XmlParser", cardList.toString());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } return cardList;
     }
 
-    private String getString(String line) {
+    private static String getString(String line) {
         int begin = line.indexOf(">");
         int end = line.indexOf("<", begin);
         String res = "";
         for (int i = begin + 1; i < end; i++) {
             res += line.charAt(i);
         }
-        Log.i("GETSTRING", res);
         return res;
     }
 
-
     public void writeToFile() {
-
-
         try {
-            //FileOutputStream fos = new FileOutputStream(fileName, false);
             FileWriter fileWriter = new FileWriter(appFile);
             PrintWriter printWriter = new PrintWriter(fileWriter);
 
@@ -104,12 +105,12 @@ public class CardList {
                 for (AppCard appCard : getCards()) {
                     fileContent += "\n\t<app-card>"
                             + "\n\t\t<name>" + appCard.getAppName() + "</name>"
-                            + "\n\t\t<icon>" + appCard.getAppIcon() + "</icon>"
+//                            + "\n\t\t<icon>" +  + "</icon>"
                             + "\n\t\t<color>" + appCard.getNotificationColor() + "</color>"
                             + "\n\t</app-card>";
                 }
             } fileContent += "\n</resources>";
-            Log.i("XMLPARSER", fileContent);
+            Log.i("XmlParser", fileContent);
             printWriter.println(fileContent);
             printWriter.close();
 
@@ -117,6 +118,7 @@ public class CardList {
             e.printStackTrace();
         }
     }
+
 
     @Override
     public String toString() {

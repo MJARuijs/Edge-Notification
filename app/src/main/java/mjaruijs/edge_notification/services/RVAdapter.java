@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,8 +29,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
     @Override
     public void onBindViewHolder(CardViewHolder holder, int position) {
         holder.appName.setText(cards.get(position).getAppName());
-        holder.appIcon.setImageResource(cards.get(position).getAppIcon());
-        holder.appIcon.setBackgroundColor(cards.get(position).getNotificationColor());
+        holder.appIcon.setImageDrawable(cards.get(position).getAppIcon());
+        holder.appNotificationColor.setBackgroundColor(cards.get(position).getNotificationColor());
     }
 
     @Override
@@ -42,18 +43,18 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    public static class CardViewHolder extends RecyclerView.ViewHolder {
+    static class CardViewHolder extends RecyclerView.ViewHolder {
         CardView cv;
         TextView appName;
         ImageView appIcon;
-        ImageView appNotificationColor;
+        Button appNotificationColor;
 
         CardViewHolder(View itemView) {
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.card_view);
             appName = (TextView) itemView.findViewById(R.id.app_name);
             appIcon = (ImageView) itemView.findViewById(R.id.app_icon);
-            appNotificationColor = (ImageView) itemView.findViewById(R.id.app_notification_color);
+            appNotificationColor = (Button) itemView.findViewById(R.id.app_notification_color);
         }
     }
 }
