@@ -20,7 +20,7 @@ public class IconMap {
         return appMap.containsKey(appName);
     }
 
-    public Drawable getValue(String appName) {
+    Drawable getValue(String appName) {
         return appMap.get(appName);
     }
 }

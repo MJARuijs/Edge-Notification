@@ -1,5 +1,6 @@
 package mjaruijs.edge_notification.data;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
@@ -17,8 +18,9 @@ public class CardList {
     private static List<AppCard> cards;
 
     private static File appFile;
+    private Context context;
 
-    private CardList(File file) {
+    private CardList() {
         cards = new ArrayList<>();
     }
 
@@ -27,11 +29,23 @@ public class CardList {
         appFile = new File(file, fileName);
     }
 
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
     public void addCard(AppCard appcard) {
         cards.add(appcard);
     }
 
-    public List<AppCard> getCards() {
+    public AppCard getByName(String appName) {
+        for (AppCard card : cards) {
+            if (card.getAppName().equals(appName)) {
+                return card;
+            }
+        } return null;
+    }
+
+    private List<AppCard> getCards() {
         return cards;
     }
 
@@ -47,8 +61,8 @@ public class CardList {
         cards.clear();
     }
 
-    public static CardList readFromXML(IconMap iconMap) {
-        CardList cardList = new CardList(appFile);
+    public static CardList readFromXML(Context context, IconMap iconMap) {
+        CardList cardList = new CardList();
         String line;
         String appName = "";
         Drawable appIcon = null;
@@ -62,17 +76,14 @@ public class CardList {
                 if (line.contains("<name>")) {
                     appName = getString(line);
                     appIcon = iconMap.getValue(appName);
-//                } else if (line.contains("<icon>"))  {
-//                    appIcon = getString(line);
-//                    if (!appIcon.equals("null"))
-//                        iconInt = Integer.parseInt(appIcon);
                 } else if (line.contains("<color")) {
                     appColor = getString(line);
 
                     colorInt = Integer.parseInt(appColor);
                 } else if (line.contains("</app-card>")) {
                     cardList.addCard(new
-                            AppCard(appName,
+                            AppCard(context,
+                            appName,
                             appIcon,
                             colorInt));
                 }

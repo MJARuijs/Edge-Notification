@@ -7,7 +7,11 @@
         <item name="colorPrimaryDark">@color/bluePrimaryDark</item>
         <item name="colorAccent">@color/blueAccentPink</item>
     </style>
+    <style name="MyDialogTheme" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">@color/teal</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
 
+    </style>
     <style name="Device_Settings_Dark" parent="Theme.AppCompat.NoActionBar">
         <item name="android:statusBarColor">@color/darkNotificationBar</item>
         <item name="colorPrimary">@color/darkPrimaryDark</item>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -14,7 +15,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        card_view:cardBackgroundColor="@color/darkPrimary" >
+        card_view:cardBackgroundColor="@color/darkPrimary">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -36,8 +37,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
+                android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_toEndOf="@+id/app_icon"
+                android:ellipsize="marquee"
+                android:gravity="center_vertical"
+                android:scrollHorizontally="false"
                 android:textSize="25sp" />
 
             <Button
@@ -46,16 +51,12 @@
                 android:layout_height="40dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/circle_button" />
+                android:layout_marginEnd="11dp"
+                android:background="@drawable/circle_button"
+                android:backgroundTint="@color/blue"
+                android:backgroundTintMode="src_atop"
+                android:onClick="onClickColorButton" />
 
-            <!--<TextView-->
-            <!--android:id="@+id/age"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@id/app_name"-->
-            <!--android:layout_toEndOf="@id/app_icon"-->
-            <!--android:text="19 Years Old" />-->
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>

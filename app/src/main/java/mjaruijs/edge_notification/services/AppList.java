@@ -54,7 +54,7 @@ public class AppList implements ListAdapter {
         return apps.get(position);
     }
 
-    public AppItem getAppItem(int position) { return apps.get(position); }
+//    public AppItem getAppItem(int position) { return apps.get(position); }
 
     @Override
     public long getItemId(int position) {

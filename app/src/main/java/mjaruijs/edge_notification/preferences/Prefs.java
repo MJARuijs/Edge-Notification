@@ -8,7 +8,6 @@ public class Prefs {
 
     public boolean initialized;
     public boolean enabled;
-    public boolean permissionGranted;
 
     private SharedPreferences prefs;
 
@@ -19,7 +18,6 @@ public class Prefs {
     public void apply() {
         enabled = prefs.getBoolean(KEYS.ENABLED.toString(), false);
         initialized = prefs.getBoolean(KEYS.INITIALIZED.toString(), false);
-        permissionGranted = prefs.getBoolean(KEYS.PERMISSION_GRANTED.toString(), false);
     }
 
     public void setBool(String key, boolean value) {
@@ -28,8 +26,7 @@ public class Prefs {
 
     public enum KEYS {
         ENABLED("enabled"),
-        INITIALIZED("initialized"),
-        PERMISSION_GRANTED("permissionGranted");
+        INITIALIZED("initialized");
 
         private final String id;
 

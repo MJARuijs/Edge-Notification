@@ -16,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,6 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mjaruijs.edge_notification.R;
+import mjaruijs.edge_notification.color_picker.ColorPickerPalette;
+import mjaruijs.edge_notification.color_picker.ColorPickerSwatch;
+import mjaruijs.edge_notification.color_picker.Colors;
 import mjaruijs.edge_notification.data.AppCard;
 import mjaruijs.edge_notification.data.AppItem;
 import mjaruijs.edge_notification.data.CardList;
@@ -40,6 +44,7 @@ import mjaruijs.edge_notification.services.RVAdapter;
 import mjaruijs.edge_notification.services.StarterService;
 
 public class MainActivity extends AppCompatActivity  {
+
     private RVAdapter appCardAdapter;
     private IconMap iconMap;
     private CardList cards;
@@ -48,6 +53,11 @@ public class MainActivity extends AppCompatActivity  {
     private Dialog dia;
     public String[] strings;
     public Drawable[] icons;
+    private int[] colors;
+
+    private AppCard selectedCard;
+    private ColorPickerPalette colorPickerPalette;
+    private AlertDialog colorAlertDialog;
     //public static final int SCREEN_BRIGHT_WAKE_LOCK = 0x0000000a;
 
     @Override
@@ -56,7 +66,7 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
         starterService = new Intent(getApplicationContext(), StarterService.class);
 
-       iconMap = new IconMap();
+        iconMap = new IconMap();
 
         // Preferences
         Prefs prefs = new Prefs(getApplicationContext());
@@ -98,13 +108,17 @@ public class MainActivity extends AppCompatActivity  {
             }
 
             CardList.initialize(file);
-            cards = CardList.readFromXML(iconMap);
+            cards = CardList.readFromXML(getApplicationContext(), iconMap);
 
             appCardAdapter = new RVAdapter(cards);
 
             AppList apps = new AppList(MainActivity.this);
             appCardView.setAdapter(appCardAdapter);
 
+            Colors.initializeColors();
+            colors = new int[20];
+            initColors();
+            //colors = Colors.getColors();
             strings = new String[applicationPackages.size()];
             icons = new Drawable[applicationPackages.size()];
 
@@ -127,6 +141,34 @@ public class MainActivity extends AppCompatActivity  {
 
             dia = builder.create();
 
+        // Color Picker
+        LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
+        colorPickerPalette = (ColorPickerPalette) layoutInflater.inflate(R.layout.custom_picker, null);
+        colorPickerPalette.init(colors.length, 5, new ColorPickerSwatch.OnColorSelectedListener() {
+            @Override
+            public void onColorSelected(int color) {
+                colorAlertDialog.dismiss();
+                selectedCard.setNotificationColor(color);
+                appCardAdapter.notifyDataSetChanged();
+            }
+        });
+        colorPickerPalette.drawPalette(colors, colors[19]);
+        colorAlertDialog = new AlertDialog.Builder(this, R.style.MyDialogTheme)
+                .setTitle(R.string.color_picker_default_title)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).setView(colorPickerPalette)
+                .create();
+
+
             // Floating Action Button
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -135,10 +177,8 @@ public class MainActivity extends AppCompatActivity  {
                 @Override
                 public void onClick(View view) {
                     dia.show();
-
                 }
             });
-
         //}
     }
 
@@ -146,11 +186,18 @@ public class MainActivity extends AppCompatActivity  {
         TextView textView = (TextView) v.findViewById(R.id.app_text);
         ImageView icon = (ImageView) v.findViewById(R.id.app_icon);
 
-        cards.addCard(new AppCard(textView.getText().toString(),
+        cards.addCard(new AppCard(getApplicationContext(),
+                textView.getText().toString(),
                 icon.getDrawable(),
                 Color.WHITE));
         dia.hide();
         appCardAdapter.notifyDataSetChanged();
+    }
+
+    public void onClickColorButton(View v) {
+        Log.i(TAG, "View id: " + v.getTag());
+        selectedCard = cards.getByName(v.getTag().toString());
+        colorAlertDialog.show();
     }
 
     private void restartService() {
@@ -184,6 +231,29 @@ public class MainActivity extends AppCompatActivity  {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
+    }
+
+    private void initColors() {
+        colors[0]  = Color.argb(255, 246,  64,  44);    // Red
+        colors[1]  = Color.argb(255, 235,  20,  96);    // Pink
+        colors[2]  = Color.argb(255, 156,  26, 177);    // purple
+        colors[3]  = Color.argb(255, 102,  51, 185);    // Deep purple
+        colors[4]  = Color.argb(255,  61,  77, 183);    // Indigo
+        colors[5]  = Color.argb(255,  16, 147, 245);    // Blue
+        colors[6]  = Color.argb(255,   0, 166, 246);    // Light blue
+        colors[7]  = Color.argb(255,   0, 187, 213);    // Cyan
+        colors[8]  = Color.argb(255,   0, 150, 135);    // Teal
+        colors[9]  = Color.argb(255,  70, 175,  74);    // Green
+        colors[10] = Color.argb(255, 136, 196,  64);    // Light green
+        colors[11] = Color.argb(255, 205, 221,  30);    // Lime
+        colors[12] = Color.argb(255, 255, 236,  22);    // Yellow
+        colors[13] = Color.argb(255, 255, 192,   0);    // Amber
+        colors[14] = Color.argb(255, 255, 152,   0);    // Orange
+        colors[15] = Color.argb(255, 255,  85,   5);    // Deep orange
+        colors[16] = Color.argb(255, 122,  85,  71);    // Brown
+        colors[17] = Color.argb(255, 157, 157, 157);    // Grey
+        colors[18] = Color.argb(255,  94, 124, 139);    // Blue Grey
+        colors[19] = Color.argb(255, 255, 255, 255);    // White
     }
 
     @Override
