@@ -6,7 +6,7 @@
 
     <!-- Menu Strings-->
     <string name="menu_btn_permission">Permission</string>
-    <string name="image_description">pasPhoto</string>
+    <string name="image_description">App Icon</string>
     <string name="title_activity_main2">Main2Activity</string>
     <string name="app_icon">app_icon</string>
     <string name="delete_all">Delete all</string>

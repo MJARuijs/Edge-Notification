@@ -1,22 +1,19 @@
 package mjaruijs.edge_notification.data;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
-import mjaruijs.edge_notification.color_picker.ColorPickerSwatch;
-
-public class AppCard {
+public class AppCard{
 
     private String appName;
     private Drawable appIcon;
     private int notificationColor;
-    private ColorPickerSwatch colorPickerSwatch;
 
-    public AppCard(Context context, String appName, Drawable appIcon, int notificationColor) {
+    public AppCard(String appName, Drawable appIcon, int notificationColor) {
         this.appName = appName;
         this.appIcon = appIcon;
         this.notificationColor = notificationColor;
-        colorPickerSwatch = new ColorPickerSwatch(context, notificationColor);
+        Log.i(getClass().getSimpleName(), "Color int: " + notificationColor);
     }
 
     public String getAppName() {

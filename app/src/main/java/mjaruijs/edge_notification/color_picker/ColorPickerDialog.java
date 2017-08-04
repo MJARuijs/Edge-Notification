@@ -21,13 +21,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import mjaruijs.edge_notification.color_picker.ColorPickerSwatch.OnColorSelectedListener;
-
 import mjaruijs.edge_notification.R;
+import mjaruijs.edge_notification.color_picker.ColorPickerSwatch.OnColorSelectedListener;
 
 /**
  * A dialog which takes in as input an array of colors and creates a palette allowing the user to
@@ -128,6 +128,7 @@ public class ColorPickerDialog extends DialogFragment implements OnColorSelected
 
     @Override
     public void onColorSelected(int color) {
+        Log.i(getClass().getSimpleName(), "Color picker selected!");
         if (mListener != null) {
             mListener.onColorSelected(color);
         }

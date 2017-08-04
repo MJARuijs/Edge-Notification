@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -31,7 +32,6 @@ import java.util.List;
 import mjaruijs.edge_notification.R;
 import mjaruijs.edge_notification.color_picker.ColorPickerPalette;
 import mjaruijs.edge_notification.color_picker.ColorPickerSwatch;
-import mjaruijs.edge_notification.color_picker.Colors;
 import mjaruijs.edge_notification.data.AppCard;
 import mjaruijs.edge_notification.data.AppItem;
 import mjaruijs.edge_notification.data.CardList;
@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity  {
     private int[] colors;
 
     private AppCard selectedCard;
-    private ColorPickerPalette colorPickerPalette;
     private AlertDialog colorAlertDialog;
     //public static final int SCREEN_BRIGHT_WAKE_LOCK = 0x0000000a;
 
@@ -92,9 +91,9 @@ public class MainActivity extends AppCompatActivity  {
             startService(starterServiceIntent);
 
             // Recycle View
-            RecyclerView appCardView = (RecyclerView) findViewById(R.id.recycle_view);
+            final RecyclerView appCardView = (RecyclerView) findViewById(R.id.recycle_view);
 
-            LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
+            final LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
 
             appCardView.setLayoutManager(llm);
             File file = getFilesDir();
@@ -108,17 +107,15 @@ public class MainActivity extends AppCompatActivity  {
             }
 
             CardList.initialize(file);
-            cards = CardList.readFromXML(getApplicationContext(), iconMap);
+            cards = CardList.readFromXML(iconMap);
 
             appCardAdapter = new RVAdapter(cards);
 
             AppList apps = new AppList(MainActivity.this);
             appCardView.setAdapter(appCardAdapter);
 
-            Colors.initializeColors();
             colors = new int[20];
             initColors();
-            //colors = Colors.getColors();
             strings = new String[applicationPackages.size()];
             icons = new Drawable[applicationPackages.size()];
 
@@ -128,6 +125,7 @@ public class MainActivity extends AppCompatActivity  {
                 apps.add(new AppItem(applicationPackages.get(i).appName, applicationPackages.get(i).icon));
             }
 
+            //TODO: Allow the user to select multiple apps from the appList at once, adding them all to the appCardList.
             apps.sort();
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.Alert_Dialog_Dark);
             builder.setTitle("Pick an app");
@@ -143,13 +141,18 @@ public class MainActivity extends AppCompatActivity  {
 
         // Color Picker
         LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
-        colorPickerPalette = (ColorPickerPalette) layoutInflater.inflate(R.layout.custom_picker, null);
+        ColorPickerPalette colorPickerPalette = (ColorPickerPalette) layoutInflater.inflate(R.layout.custom_picker, null);
         colorPickerPalette.init(colors.length, 5, new ColorPickerSwatch.OnColorSelectedListener() {
             @Override
             public void onColorSelected(int color) {
+                Log.i(TAG, "Selected color: "+ color);
+                cards.getByName(selectedCard.getAppName()).setNotificationColor(color);
+                int[][] states = new int[][] { new int[0]};
+                int[] colors = { color };
+                ColorStateList colorList = new ColorStateList(states, colors);
+                appCardView.findViewWithTag(selectedCard.getAppName()).setBackgroundTintList(colorList);
                 colorAlertDialog.dismiss();
-                selectedCard.setNotificationColor(color);
-                appCardAdapter.notifyDataSetChanged();
+
             }
         });
         colorPickerPalette.drawPalette(colors, colors[19]);
@@ -168,7 +171,6 @@ public class MainActivity extends AppCompatActivity  {
                 }).setView(colorPickerPalette)
                 .create();
 
-
             // Floating Action Button
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -186,8 +188,7 @@ public class MainActivity extends AppCompatActivity  {
         TextView textView = (TextView) v.findViewById(R.id.app_text);
         ImageView icon = (ImageView) v.findViewById(R.id.app_icon);
 
-        cards.addCard(new AppCard(getApplicationContext(),
-                textView.getText().toString(),
+        cards.addCard(new AppCard(textView.getText().toString(),
                 icon.getDrawable(),
                 Color.WHITE));
         dia.hide();

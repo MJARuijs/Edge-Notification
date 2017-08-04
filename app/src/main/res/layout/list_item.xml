@@ -4,10 +4,11 @@
     android:id="@+id/app_card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="3dp"
+    android:layout_margin="0dp"
     android:gravity="center_vertical"
     android:onClick="onClick"
-    card_view:cardBackgroundColor="@color/darkPrimary">
+    card_view:cardBackgroundColor="@color/darkPrimary"
+    card_view:cardCornerRadius="0dp">
 
     <RelativeLayout
         android:layout_width="match_parent"

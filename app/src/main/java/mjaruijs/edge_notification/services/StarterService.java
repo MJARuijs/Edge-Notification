@@ -55,9 +55,9 @@ public class StarterService extends Service implements SensorEventListener {
         filter.addAction("mjaruijs.edge_notification.NOTIFICATION_LISTENER");
 
         if (prefs.enabled) {
+            Log.i("STARTERSERVICE", "Prefs enabled");
             startService(notificationAlertIntent);
             sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-
             sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM);
             registerReceiver(notificationReceiver, filter);
             initialized = true;

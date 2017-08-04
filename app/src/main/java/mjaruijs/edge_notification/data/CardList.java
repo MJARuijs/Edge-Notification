@@ -1,6 +1,5 @@
 package mjaruijs.edge_notification.data;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
@@ -18,7 +17,6 @@ public class CardList {
     private static List<AppCard> cards;
 
     private static File appFile;
-    private Context context;
 
     private CardList() {
         cards = new ArrayList<>();
@@ -27,10 +25,6 @@ public class CardList {
     public static void initialize(File file) {
         final String fileName = "app_array.txt";
         appFile = new File(file, fileName);
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
     }
 
     public void addCard(AppCard appcard) {
@@ -61,7 +55,7 @@ public class CardList {
         cards.clear();
     }
 
-    public static CardList readFromXML(Context context, IconMap iconMap) {
+    public static CardList readFromXML(IconMap iconMap) {
         CardList cardList = new CardList();
         String line;
         String appName = "";
@@ -82,8 +76,7 @@ public class CardList {
                     colorInt = Integer.parseInt(appColor);
                 } else if (line.contains("</app-card>")) {
                     cardList.addCard(new
-                            AppCard(context,
-                            appName,
+                            AppCard(appName,
                             appIcon,
                             colorInt));
                 }
