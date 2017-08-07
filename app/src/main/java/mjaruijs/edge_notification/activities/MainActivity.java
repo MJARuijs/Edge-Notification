@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity  {
     public String[] strings;
     public Drawable[] icons;
     private int[] colors;
-
     private AppCard selectedCard;
     private AlertDialog colorAlertDialog;
     //public static final int SCREEN_BRIGHT_WAKE_LOCK = 0x0000000a;
@@ -181,7 +180,6 @@ public class MainActivity extends AppCompatActivity  {
                     dia.show();
                 }
             });
-        //}
     }
 
     public void onClick(View v){
@@ -260,11 +258,11 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+
             case R.id.menu_permission:
-                Intent i = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+                Intent i = new Intent(MainActivity.this, LockScreenActivity.class);
                 startActivity(i);
                 return true;
-
             case R.id.delete_all:
                 cards.clear();
                 appCardAdapter.notifyDataSetChanged();
@@ -291,5 +289,4 @@ public class MainActivity extends AppCompatActivity  {
         Log.i(TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
     }
-
 }

@@ -3,9 +3,14 @@
     package="mjaruijs.edge_notification">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION"/>
     <application
         android:allowBackup="true"
         android:fullBackupContent="true"
@@ -27,6 +32,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.IntroActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_intro"
+            android:theme="@style/FullscreenTheme" />
+        <activity
+            android:name=".activities.LockScreenActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:theme="@style/FullscreenTheme" />
 
         <service
             android:name=".services.NotificationListener"
@@ -45,12 +60,13 @@
                 <action android:name=".Services.StarterService" />
             </intent-filter>
         </service>
+        <!--<service android:name=".lockscreen.LockScreenService" >-->
+        <!--</service>-->
+        <service
+            android:name=".services.SensorService"
+            android:label="@string/app_name">
+        </service>
 
-        <activity
-            android:name=".activities.IntroActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_intro"
-            android:theme="@style/FullscreenTheme" />
     </application>
 
 </manifest>

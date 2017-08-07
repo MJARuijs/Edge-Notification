@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
+import mjaruijs.edge_notification.activities.LockScreenActivity;
 import mjaruijs.edge_notification.preferences.Prefs;
 
 public class StarterService extends Service implements SensorEventListener {
@@ -29,6 +30,8 @@ public class StarterService extends Service implements SensorEventListener {
     static final int FULL_WAKE_LOCK = 0x0000001a;
     private NotificationReceiver notificationReceiver;
     private Prefs prefs;
+    private Intent stopCodeListenerIntent;
+    private boolean sendStopCode;
 
     @Nullable
     @Override
@@ -40,10 +43,11 @@ public class StarterService extends Service implements SensorEventListener {
     public void onCreate() {
         super.onCreate();
         Intent notificationAlertIntent = new Intent(getApplicationContext(), NotificationListener.class);
+        stopCodeListenerIntent = new Intent(getApplicationContext(), SensorService.class);
 
         prefs = new Prefs(getApplicationContext());
         prefs.apply();
-
+        sendStopCode = false;
         // Display State
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         display = wm.getDefaultDisplay();
@@ -70,13 +74,15 @@ public class StarterService extends Service implements SensorEventListener {
             if (event.values[0] >= -SENSOR_SENSITIVITY && event.values[0] <= SENSOR_SENSITIVITY) {
                 proximityClose = true;
                 Log.i("StarterService", "Close");
-                //near
-                //Toast.makeText(getApplicationContext(), "near", Toast.LENGTH_SHORT).show();
             } else {
                 proximityClose = false;
                 Log.i("StarterService", "Far");
-                //far
-                //Toast.makeText(getApplicationContext(), "far", Toast.LENGTH_SHORT).show();
+                if (sendStopCode) {
+                    Intent i = new Intent("mjaruijs.edge_notification.STOP_CODE_LISTENER");
+                    i.putExtra("command", "stop");
+                    Log.i(getClass().getSimpleName(), "Sending STOPCODE");
+                    sendBroadcast(i);
+                }
             }
         }
     }
@@ -102,6 +108,7 @@ public class StarterService extends Service implements SensorEventListener {
                 return Integer.toString(state);
         }
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -111,6 +118,7 @@ public class StarterService extends Service implements SensorEventListener {
             initialized = !initialized;
         }
     }
+
     private void unlockScreen() {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
@@ -123,17 +131,33 @@ public class StarterService extends Service implements SensorEventListener {
         wakeLock.acquire();
         Log.i("StarterService", "Unlocked");
         wakeLock.release();
+
+        sendStopCode = true;
+        startService(stopCodeListenerIntent);
+        showNotificationFlash();
+    }
+
+    private void showNotificationFlash() {
+        Intent i = new Intent(StarterService.this, LockScreenActivity.class);
+        startActivity(i);
     }
 
     class NotificationReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            state = stateToString(display.getState());
-            Log.i("StarterService", "Display state: " + state);
+            if (intent.getStringExtra("notification").equals("posted")) {
+                state = stateToString(display.getState());
+                Log.i("StarterService", "Display state: " + state);
 
-            if (state.equals("OFF") && prefs.enabled && proximityClose) {
-                unlockScreen();
+                if (state.equals("OFF") && prefs.enabled && proximityClose) {
+                    Log.i(getClass().getSimpleName(), "Display OFF, and close");
+                    unlockScreen();
+                }
+                if (state.equals("ON") && prefs.enabled && proximityClose) {
+                    Log.i(getClass().getSimpleName(), "Display ON, and close");
+                    showNotificationFlash();
+                }
             }
 
         }
