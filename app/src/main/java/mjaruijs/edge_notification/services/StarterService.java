@@ -30,7 +30,6 @@ public class StarterService extends Service implements SensorEventListener {
     static final int FULL_WAKE_LOCK = 0x0000001a;
     private NotificationReceiver notificationReceiver;
     private Prefs prefs;
-    private Intent stopCodeListenerIntent;
     private boolean sendStopCode;
 
     @Nullable
@@ -43,11 +42,11 @@ public class StarterService extends Service implements SensorEventListener {
     public void onCreate() {
         super.onCreate();
         Intent notificationAlertIntent = new Intent(getApplicationContext(), NotificationListener.class);
-        stopCodeListenerIntent = new Intent(getApplicationContext(), SensorService.class);
 
         prefs = new Prefs(getApplicationContext());
         prefs.apply();
         sendStopCode = false;
+
         // Display State
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         display = wm.getDefaultDisplay();
@@ -57,6 +56,7 @@ public class StarterService extends Service implements SensorEventListener {
         notificationReceiver = new NotificationReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction("mjaruijs.edge_notification.NOTIFICATION_LISTENER");
+
 
         if (prefs.enabled) {
             Log.i("STARTERSERVICE", "Prefs enabled");
@@ -78,6 +78,7 @@ public class StarterService extends Service implements SensorEventListener {
                 proximityClose = false;
                 Log.i("StarterService", "Far");
                 if (sendStopCode) {
+                    sendStopCode = false;
                     Intent i = new Intent("mjaruijs.edge_notification.STOP_CODE_LISTENER");
                     i.putExtra("command", "stop");
                     Log.i(getClass().getSimpleName(), "Sending STOPCODE");
@@ -119,7 +120,7 @@ public class StarterService extends Service implements SensorEventListener {
         }
     }
 
-    private void unlockScreen() {
+    private void unlockScreen(String appName) {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
         PowerManager.WakeLock wakeLock = pm.newWakeLock(FULL_WAKE_LOCK
@@ -129,16 +130,17 @@ public class StarterService extends Service implements SensorEventListener {
                 | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
 
         wakeLock.acquire();
+
         Log.i("StarterService", "Unlocked");
         wakeLock.release();
 
         sendStopCode = true;
-        startService(stopCodeListenerIntent);
-        showNotificationFlash();
+        showNotificationFlash(appName);
     }
 
-    private void showNotificationFlash() {
+    private void showNotificationFlash(String appName) {
         Intent i = new Intent(StarterService.this, LockScreenActivity.class);
+        i.putExtra("color", appName);
         startActivity(i);
     }
 
@@ -146,19 +148,19 @@ public class StarterService extends Service implements SensorEventListener {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            String appName = intent.getStringExtra("notification_event");
             if (intent.getStringExtra("notification").equals("posted")) {
                 state = stateToString(display.getState());
-                Log.i("StarterService", "Display state: " + state);
-
                 if (state.equals("OFF") && prefs.enabled && proximityClose) {
                     Log.i(getClass().getSimpleName(), "Display OFF, and close");
-                    unlockScreen();
+                    unlockScreen(appName);
                 }
                 if (state.equals("ON") && prefs.enabled && proximityClose) {
                     Log.i(getClass().getSimpleName(), "Display ON, and close");
-                    showNotificationFlash();
+                    //showNotificationFlash(appName);
                 }
             }
+
 
         }
     }

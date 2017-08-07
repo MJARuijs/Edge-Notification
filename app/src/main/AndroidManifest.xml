@@ -40,7 +40,6 @@
         <activity
             android:name=".activities.LockScreenActivity"
             android:excludeFromRecents="true"
-            android:launchMode="singleTask"
             android:theme="@style/FullscreenTheme" />
 
         <service

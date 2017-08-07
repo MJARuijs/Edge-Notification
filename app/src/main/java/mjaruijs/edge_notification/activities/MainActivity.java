@@ -151,7 +151,6 @@ public class MainActivity extends AppCompatActivity  {
                 ColorStateList colorList = new ColorStateList(states, colors);
                 appCardView.findViewWithTag(selectedCard.getAppName()).setBackgroundTintList(colorList);
                 colorAlertDialog.dismiss();
-
             }
         });
         colorPickerPalette.drawPalette(colors, colors[19]);

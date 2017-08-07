@@ -20,15 +20,26 @@ public class SensorService extends Service implements SensorEventListener {
     private StopCodeListener stopCodeListener;
     private SensorManager sensorManager;
 
+//    @Override
+//    public void onCreate() {
+//        Log.i(getClass().getSimpleName(), "CREATED");
+//        stopCodeListener = new StopCodeListener();
+//        IntentFilter filter = new IntentFilter("mjaruijs.edge_notification.STOP_CODE_LISTENER_SERVICE");
+//        registerReceiver(stopCodeListener, filter);
+//        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+//        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM);
+//
+//    }
+
     @Override
-    public void onCreate() {
-        Log.i(getClass().getSimpleName(), "CREATED");
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(getClass().getSimpleName(), "START COMMAND");
         stopCodeListener = new StopCodeListener();
         IntentFilter filter = new IntentFilter("mjaruijs.edge_notification.STOP_CODE_LISTENER_SERVICE");
         registerReceiver(stopCodeListener, filter);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM);
-
+        return START_NOT_STICKY;
     }
 
     @Nullable

@@ -1,7 +1,6 @@
 package mjaruijs.edge_notification.services;
 
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
@@ -14,16 +13,11 @@ public class NotificationListener extends NotificationListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
-        //notificationReceiver = new MyReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("mjaruijs.edge_notification.NOTIFICATION_LISTENER_SERVICE");
-       // registerReceiver(notificationReceiver, filter);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-       // unregisterReceiver(notificationReceiver);
     }
 
     @Override
@@ -46,6 +40,7 @@ public class NotificationListener extends NotificationListenerService {
             Intent i = new Intent("mjaruijs.edge_notification.NOTIFICATION_LISTENER");
             i.putExtra("notification_event", sbn.getNotification().tickerText +"\n");
             i.putExtra("notification", "removed");
+
             sendBroadcast(i);
         }
     }

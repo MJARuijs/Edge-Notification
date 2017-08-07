@@ -16,9 +16,9 @@ public class IconMap {
         appMap.put(appName, icon);
     }
 
-    public boolean containsKey(String appName) {
-        return appMap.containsKey(appName);
-    }
+//    public boolean containsKey(String appName) {
+//        return appMap.containsKey(appName);
+//    }
 
     Drawable getValue(String appName) {
         return appMap.get(appName);

@@ -15,7 +15,6 @@ import java.util.Scanner;
 public class CardList {
 
     private static List<AppCard> cards;
-
     private static File appFile;
 
     private CardList() {
@@ -25,6 +24,7 @@ public class CardList {
     public static void initialize(File file) {
         final String fileName = "app_array.txt";
         appFile = new File(file, fileName);
+
     }
 
     public void addCard(AppCard appcard) {
@@ -34,12 +34,13 @@ public class CardList {
     public AppCard getByName(String appName) {
         for (AppCard card : cards) {
             if (card.getAppName().equals(appName)) {
+
                 return card;
             }
         } return null;
     }
 
-    private List<AppCard> getCards() {
+    public static List<AppCard> getCards() {
         return cards;
     }
 
