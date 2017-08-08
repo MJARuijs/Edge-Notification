@@ -40,8 +40,8 @@ import mjaruijs.edge_notification.data.PInfo;
 import mjaruijs.edge_notification.fragments.SettingsFragment;
 import mjaruijs.edge_notification.preferences.Prefs;
 import mjaruijs.edge_notification.services.AppList;
+import mjaruijs.edge_notification.services.MainService;
 import mjaruijs.edge_notification.services.RVAdapter;
-import mjaruijs.edge_notification.services.StarterService;
 
 public class MainActivity extends AppCompatActivity  {
 
@@ -56,13 +56,15 @@ public class MainActivity extends AppCompatActivity  {
     private int[] colors;
     private AppCard selectedCard;
     private AlertDialog colorAlertDialog;
+    private RecyclerView appCardView;
     //public static final int SCREEN_BRIGHT_WAKE_LOCK = 0x0000000a;
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        starterService = new Intent(getApplicationContext(), StarterService.class);
+        starterService = new Intent(getApplicationContext(), MainService.class);
 
         iconMap = new IconMap();
 
@@ -84,13 +86,14 @@ public class MainActivity extends AppCompatActivity  {
                     .replace(R.id.preferences_holder, new SettingsFragment())
                     .commitAllowingStateLoss();
 
-            Intent starterServiceIntent = new Intent(getApplicationContext(), StarterService.class);
+            Intent starterServiceIntent = new Intent(getApplicationContext(), MainService.class);
 
             stopService(starterServiceIntent);
             startService(starterServiceIntent);
 
+            // TODO: Allow the user to delete a single card at a time. This should be done by long-pressing the card, after-which a delete button appears.
             // Recycle View
-            final RecyclerView appCardView = (RecyclerView) findViewById(R.id.recycle_view);
+            appCardView = (RecyclerView) findViewById(R.id.recycle_view);
 
             final LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
 
@@ -107,7 +110,6 @@ public class MainActivity extends AppCompatActivity  {
 
             CardList.initialize(file);
             cards = CardList.readFromXML(iconMap);
-
             appCardAdapter = new RVAdapter(cards);
 
             AppList apps = new AppList(MainActivity.this);
@@ -138,9 +140,14 @@ public class MainActivity extends AppCompatActivity  {
 
             dia = builder.create();
 
+        for (AppCard card : cards.getCards2()) {
+
+        }
+
+
         // Color Picker
         LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
-        ColorPickerPalette colorPickerPalette = (ColorPickerPalette) layoutInflater.inflate(R.layout.custom_picker, null);
+        ColorPickerPalette colorPickerPalette = (ColorPickerPalette) layoutInflater.inflate(R.layout.custom_picker,  null);
         colorPickerPalette.init(colors.length, 5, new ColorPickerSwatch.OnColorSelectedListener() {
             @Override
             public void onColorSelected(int color) {
@@ -156,17 +163,7 @@ public class MainActivity extends AppCompatActivity  {
         colorPickerPalette.drawPalette(colors, colors[19]);
         colorAlertDialog = new AlertDialog.Builder(this, R.style.MyDialogTheme)
                 .setTitle(R.string.color_picker_default_title)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                }).setView(colorPickerPalette)
+                .setView(colorPickerPalette)
                 .create();
 
             // Floating Action Button
@@ -189,6 +186,29 @@ public class MainActivity extends AppCompatActivity  {
                 icon.getDrawable(),
                 Color.WHITE));
         dia.hide();
+        appCardAdapter.notifyDataSetChanged();
+    }
+
+    public void onClickDeleteCard(View v) {
+        Log.i(TAG, "pressed: " + v.getTag());
+        String tag = v.getTag().toString();
+        String nameTag = tag + "_Name";
+        String iconTag = tag + "_Icon";
+        String deleteBtnTag = tag + "_Del_Btn";
+        String deleteBackGrdTag = tag + "_Del_Backgrd";
+        //selectedCard = cards.getByName(v.getTag().toString());
+        appCardView.findViewById(R.id.app_name).setVisibility(View.VISIBLE);
+        appCardView.findViewById(R.id.app_notification_color).setVisibility(View.VISIBLE);
+        appCardView.findViewById(R.id.delete_button).setVisibility(View.INVISIBLE);
+        appCardView.findViewById(R.id.delete_background).setVisibility(View.INVISIBLE);
+
+//        appCardView.findViewWithTag(v.getTag()).setVisibility(View.VISIBLE);
+//        appCardView.findViewWithTag(v.getTag()).setVisibility(View.VISIBLE);
+////        appCardView.findViewWithTag(iconTag).setVisibility(View.VISIBLE);
+//        appCardView.findViewWithTag(v.getTag()).setVisibility(View.INVISIBLE);
+//        appCardView.findViewWithTag(deleteBackGrdTag).setVisibility(View.INVISIBLE);
+
+        cards.deleteCard(v.getTag().toString());
         appCardAdapter.notifyDataSetChanged();
     }
 
@@ -259,8 +279,6 @@ public class MainActivity extends AppCompatActivity  {
         switch(item.getItemId()) {
 
             case R.id.menu_permission:
-                Intent i = new Intent(MainActivity.this, LockScreenActivity.class);
-                startActivity(i);
                 return true;
             case R.id.delete_all:
                 cards.clear();

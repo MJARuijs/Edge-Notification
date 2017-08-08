@@ -31,6 +31,14 @@ public class CardList {
         cards.add(appcard);
     }
 
+    public void deleteCard(String name) {
+        for (int i = 0; i < cards.size(); i++) {
+            if (cards.get(i).getAppName().equals(name)) {
+                cards.remove(i);
+            }
+        }
+    }
+
     public AppCard getByName(String appName) {
         for (AppCard card : cards) {
             if (card.getAppName().equals(appName)) {
@@ -39,6 +47,8 @@ public class CardList {
             }
         } return null;
     }
+
+    public List<AppCard> getCards2() { return cards; }
 
     public static List<AppCard> getCards() {
         return cards;

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -94,6 +95,7 @@ public class LockScreenActivity extends AppCompatActivity {
 //        }
 //    }
 
+    @Nullable
     private AppCard getSelectedCard(String appName) {
         for (AppCard card : cards) {
             if (card.getAppName().trim().toLowerCase().equals(appName.toLowerCase().trim())) {

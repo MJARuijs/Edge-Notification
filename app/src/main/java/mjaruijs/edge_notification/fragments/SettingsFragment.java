@@ -9,7 +9,7 @@ import android.preference.PreferenceManager;
 
 import mjaruijs.edge_notification.R;
 import mjaruijs.edge_notification.preferences.Prefs;
-import mjaruijs.edge_notification.services.StarterService;
+import mjaruijs.edge_notification.services.MainService;
 
 public class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener, SharedPreferences.OnSharedPreferenceChangeListener{
 
@@ -25,7 +25,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         findPreference("enabled").setOnPreferenceChangeListener(this);
         PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 
-        starterService = new Intent(getActivity().getApplicationContext(), StarterService.class);
+        starterService = new Intent(getActivity().getApplicationContext(), MainService.class);
     }
 
     private void restartService() {

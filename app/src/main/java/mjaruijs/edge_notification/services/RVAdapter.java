@@ -29,8 +29,14 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(CardViewHolder holder, int position) {
-        Log.i(getClass().getSimpleName(),"Holder: " + cards.get(position).getAppName() + " " + cards.get(position).getNotificationColor());
+    public void onBindViewHolder(final CardViewHolder holder, int position) {
+        //Log.i(getClass().getSimpleName(),"Holder: " + cards.get(position).getAppName() + " " + cards.get(position).getNotificationColor());
+        String tag = cards.get(position).getAppName();
+        String nameTag = tag + "_Name";
+        String iconTag = tag + "_Icon";
+        String deleteBtnTag = tag + "_Del_Btn";
+        String deleteBackGrdTag = tag + "_Del_Backgrd";
+
         holder.appName.setText(cards.get(position).getAppName());
         holder.appIcon.setImageDrawable(cards.get(position).getAppIcon());
         holder.appNotificationColor.setTag(cards.get(position).getAppName());
@@ -38,6 +44,34 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
         int[] colors = { cards.get(position).getNotificationColor() };
         ColorStateList colorList = new ColorStateList(states, colors);
         holder.appNotificationColor.setBackgroundTintList(colorList);
+        holder.deleteButton.setTag(cards.get(position).getAppName());
+        holder.appName.setTag(nameTag);
+        holder.appIcon.setTag(iconTag);
+        holder.deleteBackground.setTag(deleteBackGrdTag);
+        holder.deleteButton.setTag(deleteBtnTag);
+        Log.i(getClass().getSimpleName(), "TAG: " + holder.deleteButton.getTag());
+//        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                holder.deleteBackground.setVisibility(View.INVISIBLE);
+//                holder.deleteButton.setVisibility(View.INVISIBLE);
+//                holder.appNotificationColor.setVisibility(View.VISIBLE);
+//                holder.appName.setVisibility(View.VISIBLE);
+//            }
+//        });
+
+        holder.cv.setOnLongClickListener(new View.OnLongClickListener() {
+
+            @Override
+            public boolean onLongClick(View v) {
+                holder.deleteBackground.setVisibility(View.VISIBLE);
+                holder.deleteButton.setVisibility(View.VISIBLE);
+                holder.appNotificationColor.setVisibility(View.INVISIBLE);
+                holder.appName.setVisibility(View.INVISIBLE);
+                return false;
+            }
+        });
     }
 
     @Override
@@ -52,6 +86,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
 
     static class CardViewHolder extends RecyclerView.ViewHolder {
         CardView cv;
+        Button deleteButton;
+        ImageView deleteBackground;
         TextView appName;
         ImageView appIcon;
         Button appNotificationColor;
@@ -59,6 +95,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
         CardViewHolder(View itemView) {
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.card_view);
+            deleteButton = (Button) itemView.findViewById(R.id.delete_button);
+            deleteBackground = (ImageView) itemView.findViewById(R.id.delete_background);
             appName = (TextView) itemView.findViewById(R.id.app_name);
             appIcon = (ImageView) itemView.findViewById(R.id.app_icon);
             appNotificationColor = (Button) itemView.findViewById(R.id.app_notification_color);
