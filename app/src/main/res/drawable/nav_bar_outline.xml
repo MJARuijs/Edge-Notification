@@ -1,0 +1,25 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="200dp"
+    android:width="1440dp"
+    android:viewportHeight="200"
+    android:viewportWidth="1440" >
+    <group
+        android:name="rotationGroup">
+
+        <path
+            android:name="nav"
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="@color/amber"
+            android:strokeWidth="25"
+            android:pathData="m 1440, 0
+            l0, 80
+            a120, 125 0 0,1 -120,  120 l -1200, 0
+            a120, 125 0 0,1 -120, -120 l 0 -80"
+            />
+        <!--m1340,0 l -1240, 0 m-100, 2860 l0,-2800  a126, 126 0 0,1 100,-60-->
+        <!--android:pathData="m 0 25 l 0 2934 S   l 1440 0 l 0 -2960 l -1440 0-->
+        <!--m 0, 100 S 25, 25 25, 0"
+        m1340,-3 l -1223, 0 m-117, 2860 l0,-2740  a120, 125 0 0,1 120,-120-->
+        <!--android:pathData="m 0 0 l 0 2934 s  l 1440 0 l 0 -2960 l -1440 0z"-->
+    </group>
+</vector>

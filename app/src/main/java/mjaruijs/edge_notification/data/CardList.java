@@ -24,19 +24,28 @@ public class CardList {
     public static void initialize(File file) {
         final String fileName = "app_array.txt";
         appFile = new File(file, fileName);
-
     }
 
     public void addCard(AppCard appcard) {
         cards.add(appcard);
     }
 
-    public void deleteCard(String name) {
-        for (int i = 0; i < cards.size(); i++) {
-            if (cards.get(i).getAppName().equals(name)) {
-                cards.remove(i);
+    public boolean contains(String appName) {
+        for (AppCard card : cards) {
+            if (card.getAppName().equals(appName)) {
+                return true;
             }
-        }
+        } return false;
+    }
+
+    public static void deleteCard(String name) {
+        List<AppCard> newAppList = new ArrayList<>();
+        String appName = name.replace("_Del_Btn", "");
+        for (int i = 0; i < cards.size(); i++) {
+            if (!cards.get(i).getAppName().equals(appName)) {
+                newAppList.add(cards.get(i));
+            }
+        } cards = newAppList;
     }
 
     public AppCard getByName(String appName) {
@@ -48,7 +57,30 @@ public class CardList {
         } return null;
     }
 
-    public List<AppCard> getCards2() { return cards; }
+    public static boolean multipleSelected() {
+        int counter = 0;
+        for (AppCard card : cards) {
+            if (card.isSelected()) {
+                counter++;
+            }
+            if (counter > 1) {
+                Log.i("CardList", "multiple selected");
+                return true;
+            }
+        }
+        Log.i("CardList", "0/1 selected");
+
+        return false;
+    }
+
+    public List<AppCard> getSelectedCards() {
+        List<AppCard> selectedCards = new ArrayList<>();
+        for (AppCard card : cards) {
+            if (card.isSelected()) {
+                selectedCards.add(card);
+            }
+        } return selectedCards;
+    }
 
     public static List<AppCard> getCards() {
         return cards;
@@ -120,7 +152,6 @@ public class CardList {
                 for (AppCard appCard : getCards()) {
                     fileContent += "\n\t<app-card>"
                             + "\n\t\t<name>" + appCard.getAppName() + "</name>"
-//                            + "\n\t\t<icon>" +  + "</icon>"
                             + "\n\t\t<color>" + appCard.getNotificationColor() + "</color>"
                             + "\n\t</app-card>";
                 }

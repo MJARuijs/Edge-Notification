@@ -3,52 +3,88 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/notification"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     android:background="@android:color/transparent"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true"
+    android:focusable="false"
+    android:orientation="vertical"
+    android:theme="@style/OverlayDialog"
+    android:layout_width="1440px"
+    android:layout_height="2960px">
+
+    <!--<mjaruijs.edge_notification.RoundedImageView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:background="@android:color/black" />-->
 
     <ImageView
-        android:id="@+id/notification_flash_top"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@color/green"
-        android:contentDescription="@string/Overlay"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
-
-    <ImageView
-        android:id="@+id/notification_flash_right"
-        android:layout_width="40dp"
-        android:layout_height="match_parent"
+        android:id="@+id/vector_drawable_image"
+        android:layout_width="1440px"
+        android:layout_height="2960px"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:background="@color/green"
-        android:contentDescription="@string/Overlay"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="344dp" />
-
-    <ImageView
-        android:id="@+id/notification_flash_left"
-        android:layout_width="40dp"
-        android:layout_height="match_parent"
-        android:background="@color/green"
-        android:contentDescription="@string/Overlay"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="0dp" />
-
-    <ImageView
-        android:id="@+id/notification_flash_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:background="@color/green"
-        android:contentDescription="@string/Overlay"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_alignParentTop="true"
+        android:background="@drawable/vector_drawable"
+        android:backgroundTint="@android:color/transparent"
+        android:backgroundTintMode="src_over"
+        android:fitsSystemWindows="true"
+        android:focusable="false"
+        android:theme="@style/OverlayDialog"
+        android:visibility="visible" />
+    <!--<ImageView-->
+    <!--android:id="@+id/imageView2"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_alignParentTop="true"-->
+
+    <!--android:background="@drawable/rounded_corners"-->
+    <!--android:backgroundTint="@android:color/black"-->
+    <!--android:contentDescription="Filler"-->
+    <!--android:fitsSystemWindows="?android:attr/windowTranslucentNavigation"-->
+    <!--android:forceHasOverlappingRendering="true"-->
+    <!--android:visibility="invisible" />-->
+
+    <!--<ImageView-->
+    <!--android:id="@+id/notification_flash_top"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="15dp"-->
+    <!--android:background="@color/green"-->
+    <!--android:contentDescription="@string/Overlay"-->
+    <!--app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--app:layout_constraintRight_toRightOf="parent" />-->
+
+    <!--<ImageView-->
+    <!--android:id="@+id/notification_flash_right"-->
+    <!--android:layout_width="15dp"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_alignParentEnd="true"-->
+    <!--android:background="@color/green"-->
+    <!--android:contentDescription="@string/Overlay"-->
+    <!--app:layout_constraintEnd_toEndOf="parent"-->
+    <!--app:layout_constraintTop_toTopOf="parent"-->
+    <!--tools:layout_editor_absoluteX="344dp"-->
+    <!--/>-->
+
+    <!--<ImageView-->
+    <!--android:id="@+id/notification_flash_left"-->
+    <!--android:layout_width="15dp"-->
+    <!--android:layout_height="3000dp"-->
+    <!--android:background="@color/green"-->
+    <!--android:contentDescription="@string/Overlay"-->
+    <!--app:layout_constraintStart_toStartOf="parent"-->
+    <!--app:layout_constraintTop_toTopOf="parent"-->
+    <!--tools:layout_editor_absoluteX="0dp"-->
+    <!--/>-->
+
+    <!--<ImageView-->
+    <!--android:id="@+id/notification_flash_bottom"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="15dp"-->
+    <!--android:layout_alignParentBottom="true"-->
+    <!--android:layout_alignParentStart="true"-->
+    <!--android:background="@color/green"-->
+    <!--android:contentDescription="@string/Overlay"-->
+    <!--app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--app:layout_constraintTop_toTopOf="parent" />-->
 
 
 </RelativeLayout>

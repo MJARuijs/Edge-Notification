@@ -17,11 +17,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -59,11 +62,64 @@ public class MainActivity extends AppCompatActivity  {
     private RecyclerView appCardView;
     //public static final int SCREEN_BRIGHT_WAKE_LOCK = 0x0000000a;
 
-    @SuppressWarnings("unchecked")
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        View decorView = getWindow().getDecorView();
+        Log.i(getClass().getSimpleName(), "Visibility: " + decorView.getSystemUiVisibility());
+        int uiOptions =  View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                ;
+        getWindow().setFlags(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION, View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        decorView.setSystemUiVisibility(uiOptions);
+        Log.i(getClass().getSimpleName(), "Visibility: " + decorView.getSystemUiVisibility());
+
+//        decorView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+//
+//            @Override
+//            public void onViewAttachedToWindow(View v) {
+//                Log.i(getClass().getSimpleName(), "lel");
+//
+//            }
+//
+//            @Override
+//            public void onViewDetachedFromWindow(View v) {
+//                Log.i(getClass().getSimpleName(), "Kek");
+//
+//            }
+//        });
+        decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+                    @Override
+                    public void onSystemUiVisibilityChange(int visibility) {
+                        if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
+                            // TODO: The navigation bar is visible. Make any desired
+                            Log.i(getClass().getSimpleName(), "TRUE");
+
+                            // adjustments to your UI, such as showing the action bar or
+                            // other navigational controls.
+                        } else {
+                            // TODO: The navigation bar is NOT visible. Make any desired
+                            Log.i(getClass().getSimpleName(), "FALSE");
+
+                            // adjustments to your UI, such as hiding the action bar or
+                            // other navigational controls.
+                        }
+                    }
+                });
+//        Intent inte = new Intent(getApplicationContext(), AccessibilityServiceImpl.class);
+//        startService(inte);
+        boolean hasMenuKey = ViewConfiguration.get(getApplicationContext()).hasPermanentMenuKey();
+        boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_NAVIGATE_OUT);
+        boolean hasHomeKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_HOME);
+        boolean hasHomeMoveKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_MOVE_HOME);
+        Log.i(getClass().getSimpleName(), "MENUKEY: " + hasMenuKey);
+        Log.i(getClass().getSimpleName(), "BACKKEY: " + hasBackKey);
+        Log.i(getClass().getSimpleName(), "HOMEKEY: " + hasHomeKey);
+        Log.i(getClass().getSimpleName(), "HomeMoveKEY: " + hasHomeMoveKey);
         starterService = new Intent(getApplicationContext(), MainService.class);
 
         iconMap = new IconMap();
@@ -87,7 +143,8 @@ public class MainActivity extends AppCompatActivity  {
                     .commitAllowingStateLoss();
 
             Intent starterServiceIntent = new Intent(getApplicationContext(), MainService.class);
-
+//            starterServiceIntent.
+//            MainService.initView(getWindow().getDecorView());
             stopService(starterServiceIntent);
             startService(starterServiceIntent);
 
@@ -102,11 +159,11 @@ public class MainActivity extends AppCompatActivity  {
 
             // Get a list of installed apps.
             ArrayList<PInfo> applicationPackages = new ArrayList<>();
-            try {
-                applicationPackages = getInstalledApps(false);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                //applicationPackages = getInstalledApps(false);
+//            } catch (PackageManager.NameNotFoundException e) {
+//                e.printStackTrace();
+//            }
 
             CardList.initialize(file);
             cards = CardList.readFromXML(iconMap);
@@ -139,11 +196,6 @@ public class MainActivity extends AppCompatActivity  {
             });
 
             dia = builder.create();
-
-        for (AppCard card : cards.getCards2()) {
-
-        }
-
 
         // Color Picker
         LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
@@ -178,37 +230,105 @@ public class MainActivity extends AppCompatActivity  {
             });
     }
 
+
     public void onClick(View v){
         TextView textView = (TextView) v.findViewById(R.id.app_text);
         ImageView icon = (ImageView) v.findViewById(R.id.app_icon);
+        if (!cards.contains(textView.getText().toString())) {
+            cards.addCard(new AppCard(textView.getText().toString(),
+                    icon.getDrawable(),
+                    Color.WHITE));
+            dia.hide();
+            appCardAdapter.notifyDataSetChanged();
+        } else {
+            final AlertDialog warningDialog;
+            warningDialog = new AlertDialog.Builder(this, R.style.MyDialogTheme)
+                    .setTitle("Duplication!")
+                    .setMessage("This app is already in your list!")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 
-        cards.addCard(new AppCard(textView.getText().toString(),
-                icon.getDrawable(),
-                Color.WHITE));
-        dia.hide();
-        appCardAdapter.notifyDataSetChanged();
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create();
+            warningDialog.show();
+        }
     }
 
-    public void onClickDeleteCard(View v) {
-        Log.i(TAG, "pressed: " + v.getTag());
-        String tag = v.getTag().toString();
-        String nameTag = tag + "_Name";
-        String iconTag = tag + "_Icon";
-        String deleteBtnTag = tag + "_Del_Btn";
-        String deleteBackGrdTag = tag + "_Del_Backgrd";
-        //selectedCard = cards.getByName(v.getTag().toString());
-        appCardView.findViewById(R.id.app_name).setVisibility(View.VISIBLE);
-        appCardView.findViewById(R.id.app_notification_color).setVisibility(View.VISIBLE);
-        appCardView.findViewById(R.id.delete_button).setVisibility(View.INVISIBLE);
-        appCardView.findViewById(R.id.delete_background).setVisibility(View.INVISIBLE);
+    public void onClickDeleteCard(final View v) {
+        Log.i(TAG, "pressed: " + v.getTag() + "\n\n");
+        final String tag = v.getTag().toString().replace("_Del_Btn", "");
+        final String nameTag = tag + "_Name";
+        final String iconTag = tag + "_Icon";
+        final String deleteBtnTag = tag + "_Del_Btn";
+        final String deleteBackGrdTag = tag + "_Del_Backgrd";
+        if (CardList.multipleSelected()) {
+            final List<AppCard> selectedCards = cards.getSelectedCards();
+            final AlertDialog warningDialog;
+            warningDialog = new AlertDialog.Builder(this, R.style.MyDialogTheme)
+                    .setTitle("Multiple Items Selected!")
+                    .setMessage("Do you want to delete all selected items?")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 
-//        appCardView.findViewWithTag(v.getTag()).setVisibility(View.VISIBLE);
-//        appCardView.findViewWithTag(v.getTag()).setVisibility(View.VISIBLE);
-////        appCardView.findViewWithTag(iconTag).setVisibility(View.VISIBLE);
-//        appCardView.findViewWithTag(v.getTag()).setVisibility(View.INVISIBLE);
-//        appCardView.findViewWithTag(deleteBackGrdTag).setVisibility(View.INVISIBLE);
-
-        cards.deleteCard(v.getTag().toString());
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            for (AppCard card : selectedCards) {
+                                String nameTag = card.getAppName() + "_Name";
+                                String iconTag = card.getAppName() + "_Icon";
+                                String deleteBtnTag = card.getAppName() + "_Del_Btn";
+                                String deleteBackGrdTag = card.getAppName() + "_Del_Backgrd";
+                                if (card.isSelected()) {
+                                    Log.i(TAG, "Deleting " + card.getAppName());
+                                    appCardView.findViewWithTag(nameTag).setVisibility(View.VISIBLE);
+                                    appCardView.findViewWithTag(iconTag).setVisibility(View.VISIBLE);
+                                    appCardView.findViewWithTag(card.getAppName()).setVisibility(View.VISIBLE);
+                                    appCardView.findViewWithTag(deleteBtnTag).setVisibility(View.INVISIBLE);
+                                    appCardView.findViewWithTag(deleteBackGrdTag).setVisibility(View.INVISIBLE);
+                                    CardList.deleteCard(card.getAppName());
+                                }
+                            }
+                            appCardAdapter.notifyDataSetChanged();
+                            dialog.dismiss();
+                        }
+                    })
+                    .setNeutralButton("Delete Only One", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Log.i(TAG, "Deleting " + tag);
+                            for (AppCard card : selectedCards) {
+                                String nameTag = card.getAppName() + "_Name";
+                                String iconTag = card.getAppName() + "_Icon";
+                                String deleteBtnTag = card.getAppName() + "_Del_Btn";
+                                String deleteBackGrdTag = card.getAppName() + "_Del_Backgrd";
+                                appCardView.findViewWithTag(nameTag).setVisibility(View.VISIBLE);
+                                appCardView.findViewWithTag(iconTag).setVisibility(View.VISIBLE);
+                                appCardView.findViewWithTag(card.getAppName()).setVisibility(View.VISIBLE);
+                                appCardView.findViewWithTag(deleteBtnTag).setVisibility(View.INVISIBLE);
+                                appCardView.findViewWithTag(deleteBackGrdTag).setVisibility(View.INVISIBLE);
+                            }
+                            CardList.deleteCard(v.getTag().toString());
+                            appCardAdapter.notifyDataSetChanged();
+                            dialog.dismiss();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create();
+            warningDialog.show();
+        } else {
+            appCardView.findViewWithTag(nameTag).setVisibility(View.VISIBLE);
+            appCardView.findViewWithTag(iconTag).setVisibility(View.VISIBLE);
+            appCardView.findViewWithTag(tag).setVisibility(View.VISIBLE);
+            appCardView.findViewWithTag(deleteBtnTag).setVisibility(View.INVISIBLE);
+            appCardView.findViewWithTag(deleteBackGrdTag).setVisibility(View.INVISIBLE);
+            CardList.deleteCard(v.getTag().toString());
+        }
         appCardAdapter.notifyDataSetChanged();
     }
 
@@ -231,6 +351,7 @@ public class MainActivity extends AppCompatActivity  {
                 PackageManager.GET_SHARED_LIBRARY_FILES;
 
         PackageManager pm = getPackageManager();
+
         List<PackageInfo> applications = pm.getInstalledPackages(flags);
 
         for (PackageInfo appInfo : applications) {
@@ -279,6 +400,45 @@ public class MainActivity extends AppCompatActivity  {
         switch(item.getItemId()) {
 
             case R.id.menu_permission:
+//                View view = LayoutInflater.from(this).inflate(R.layout.notification_screen_layout, null);
+//                view.setSystemUiVisibility( WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+//                        | WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN
+//                        | WindowManager.LayoutParams.FLAG_LAYOUT_ATTACHED_IN_DECOR
+//                        //| WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN
+////                    | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+//                        | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+////                    |WindowManager.LayoutParams.FLAG_FULLSCREEN
+//                        | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//                getWindow().setFlags( WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY, // TYPE_SYSTEM_ALERT is denied in apiLevel >=19
+//                       // WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+//                                 WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN
+//                                //| WindowManager.LayoutParams.FLAG_LAYOUT_ATTACHED_IN_DECOR
+//                                //| WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN
+////                    | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+//                                | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+////                    |WindowManager.LayoutParams.FLAG_FULLSCREEN
+//                                // WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+//                );
+//                View parent = getWindow().getDecorView();
+//
+//                PopupWindow pw = new PopupWindow(view, 1440, 2960, false);
+//                pw.setWindowLayoutType(WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY);
+////                pw.showAtLocation(parent, Gravity.BOTTOM, 0, 0);
+//                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Alert_Dialog_Dark);
+//
+//                builder.setView(R.layout.notification_screen_layout);
+////                builder.setTitle("DIA");
+////        dialog.show();
+//                Dialog dia = builder.create();
+//                dia.setContentView(R.layout.notification_screen_layout);
+//                RemoteViews rv = new RemoteViews(getPackageName(), R.layout.notification_screen_layout);
+//
+//
+//
+//                dia.show();
+                Intent i = new Intent(MainActivity.this, LockScreenActivity.class);
+                i.putExtra("color", "Notification Dummy");
+                startActivity(i);
                 return true;
             case R.id.delete_all:
                 cards.clear();
@@ -304,6 +464,7 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         Log.i(TAG, "onSaveInstanceState");
+        cards.writeToFile();
         super.onSaveInstanceState(outState);
     }
 }

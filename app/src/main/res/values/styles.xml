@@ -31,17 +31,22 @@
     <style name="Device_Settings_Dark.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="FullscreenTheme" parent="Device_Settings_Dark">
-        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:windowBackground">@null</item>
-        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
-        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+        <!--<item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>-->
+        <!--<item name="android:windowActionBarOverlay">true</item>-->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <!--<item name="android:navigationBarColor">@android:color/transparent</item>-->
+        <!--<item name="android:windowOverscan">true</item>-->
+        <!--<item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>-->
+        <!--<item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>-->
     </style>
 
     <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
-        <item name="android:background">@color/black_overlay</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
-    <style name="OverlayDialog" parent="@android:style/Theme.Dialog">
+    <style name="OverlayDialog" parent="android:style/Theme.Translucent.NoTitleBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item>

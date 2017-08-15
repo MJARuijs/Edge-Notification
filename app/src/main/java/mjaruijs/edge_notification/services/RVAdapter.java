@@ -3,7 +3,6 @@ package mjaruijs.edge_notification.services;
 import android.content.res.ColorStateList;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,8 +29,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
 
     @Override
     public void onBindViewHolder(final CardViewHolder holder, int position) {
-        //Log.i(getClass().getSimpleName(),"Holder: " + cards.get(position).getAppName() + " " + cards.get(position).getNotificationColor());
-        String tag = cards.get(position).getAppName();
+        final String tag = cards.get(position).getAppName();
         String nameTag = tag + "_Name";
         String iconTag = tag + "_Icon";
         String deleteBtnTag = tag + "_Del_Btn";
@@ -49,27 +47,17 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
         holder.appIcon.setTag(iconTag);
         holder.deleteBackground.setTag(deleteBackGrdTag);
         holder.deleteButton.setTag(deleteBtnTag);
-        Log.i(getClass().getSimpleName(), "TAG: " + holder.deleteButton.getTag());
-//        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View v) {
-//                holder.deleteBackground.setVisibility(View.INVISIBLE);
-//                holder.deleteButton.setVisibility(View.INVISIBLE);
-//                holder.appNotificationColor.setVisibility(View.VISIBLE);
-//                holder.appName.setVisibility(View.VISIBLE);
-//            }
-//        });
 
         holder.cv.setOnLongClickListener(new View.OnLongClickListener() {
 
             @Override
             public boolean onLongClick(View v) {
+                cards.getByName(tag).setSelected(true);
                 holder.deleteBackground.setVisibility(View.VISIBLE);
                 holder.deleteButton.setVisibility(View.VISIBLE);
                 holder.appNotificationColor.setVisibility(View.INVISIBLE);
                 holder.appName.setVisibility(View.INVISIBLE);
-                return false;
+                return true;
             }
         });
     }
