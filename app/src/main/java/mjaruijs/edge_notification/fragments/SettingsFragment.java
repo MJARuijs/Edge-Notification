@@ -6,10 +6,11 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import mjaruijs.edge_notification.R;
 import mjaruijs.edge_notification.preferences.Prefs;
-import mjaruijs.edge_notification.services.MainService;
+import mjaruijs.edge_notification.services.EdgeLightingService;
 
 public class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener, SharedPreferences.OnSharedPreferenceChangeListener{
 
@@ -19,13 +20,13 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences);
+        addPreferencesFromResource(R.xml.enable_switch);
         prefs = new Prefs(getActivity().getApplicationContext());
         prefs.apply();
         findPreference("enabled").setOnPreferenceChangeListener(this);
         PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 
-        starterService = new Intent(getActivity().getApplicationContext(), MainService.class);
+        starterService = new Intent(getActivity().getApplicationContext(), EdgeLightingService.class);
     }
 
     private void restartService() {
@@ -35,11 +36,14 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        prefs.apply();
+
+
         if (preference.getKey().equals("enabled")) {
-            //getContext().sendBroadcast(new Intent("Service Toggled"));
+            prefs.setBool("enabled", (boolean) newValue);
+            Log.i(getClass().getSimpleName(), "NEW VALUE: " + newValue);
             restartService();
         }
+        prefs.apply();
         return true;
     }
 

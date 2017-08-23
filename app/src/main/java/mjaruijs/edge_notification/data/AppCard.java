@@ -1,21 +1,21 @@
 package mjaruijs.edge_notification.data;
 
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
-public class AppCard{
+public class AppCard {
 
     private String appName;
     private Drawable appIcon;
-    private int notificationColor;
+    private int mainColor;
+    private int secondColor;
     private boolean selected;
 
-    public AppCard(String appName, Drawable appIcon, int notificationColor) {
+    public AppCard(String appName, Drawable appIcon, int mainColor, int secondColor) {
         this.appName = appName;
         this.appIcon = appIcon;
-        this.notificationColor = notificationColor;
+        this.mainColor = mainColor;
+        this.secondColor = secondColor;
         selected = false;
-        Log.i(getClass().getSimpleName(), "Color int: " + notificationColor);
     }
 
     public String getAppName() {
@@ -34,12 +34,15 @@ public class AppCard{
         return selected;
     }
 
-    public int getNotificationColor() {
-        return notificationColor;
+    public int getMainColor() {
+        return mainColor;
     }
 
-    public void setNotificationColor(int color) {
-        this.notificationColor = color;
+    public void setMainColor(int color) {
+        this.mainColor = color;
     }
 
+    public int getSecondColor() { return secondColor; }
+
+    public void setSecondColor(int color) { this.secondColor = color; }
 }

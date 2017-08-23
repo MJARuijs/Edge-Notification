@@ -1,6 +1,7 @@
 package mjaruijs.edge_notification.data;
 
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.File;
@@ -24,6 +25,7 @@ public class CardList {
     public static void initialize(File file) {
         final String fileName = "app_array.txt";
         appFile = new File(file, fileName);
+
     }
 
     public void addCard(AppCard appcard) {
@@ -86,6 +88,11 @@ public class CardList {
         return cards;
     }
 
+    @NonNull
+    public static String filePath() {
+        return appFile.getPath();
+    }
+
     public AppCard get(int i) {
          return cards.get(i);
     }
@@ -99,12 +106,16 @@ public class CardList {
     }
 
     public static CardList readFromXML(IconMap iconMap) {
+
+        Log.i("FILE: ", "dir: " + appFile.getPath());
         CardList cardList = new CardList();
         String line;
         String appName = "";
         Drawable appIcon = null;
-        String appColor;
-        int colorInt = 0;
+        String mainColor;
+        String secondColor;
+        int mainColorInt = 0;
+        int secondColorInt = 0;
         try {
             Scanner sc = new Scanner(appFile);
             sc.next();
@@ -114,14 +125,18 @@ public class CardList {
                     appName = getString(line);
                     appIcon = iconMap.getValue(appName);
                 } else if (line.contains("<color")) {
-                    appColor = getString(line);
-
-                    colorInt = Integer.parseInt(appColor);
-                } else if (line.contains("</app-card>")) {
+                    mainColor = getString(line);
+                    mainColorInt = Integer.parseInt(mainColor);
+                } else if (line.contains("<second-color>")) {
+                    secondColor = getString(line);
+                    secondColorInt = Integer.parseInt(secondColor);
+                }
+                else if (line.contains("</app-card>")) {
                     cardList.addCard(new
                             AppCard(appName,
                             appIcon,
-                            colorInt));
+                            mainColorInt,
+                            secondColorInt));
                 }
             } while(!line.contains("</resources>"));
 
@@ -129,6 +144,7 @@ public class CardList {
             Log.i("XmlParser", cardList.toString());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            cardList.writeToFile();
         } return cardList;
     }
 
@@ -152,7 +168,8 @@ public class CardList {
                 for (AppCard appCard : getCards()) {
                     fileContent += "\n\t<app-card>"
                             + "\n\t\t<name>" + appCard.getAppName() + "</name>"
-                            + "\n\t\t<color>" + appCard.getNotificationColor() + "</color>"
+                            + "\n\t\t<color>" + appCard.getMainColor() + "</color>"
+                            + "\n\t\t<second-color>" + appCard.getSecondColor() + "</second-color>"
                             + "\n\t</app-card>";
                 }
             } fileContent += "\n</resources>";
@@ -170,7 +187,7 @@ public class CardList {
     public String toString() {
         String string = "";
         for (AppCard card : getCards()) {
-            string += card.getAppName() + " " + card.getAppIcon() + " " + card.getNotificationColor() + " \n";
+            string += card.getAppName() + " " + card.getAppIcon() + " " + card.getMainColor() + " " + card.getSecondColor() + " \n";
         } return string;
     }
 }

@@ -35,11 +35,12 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
         String deleteBtnTag = tag + "_Del_Btn";
         String deleteBackGrdTag = tag + "_Del_Backgrd";
 
+
         holder.appName.setText(cards.get(position).getAppName());
         holder.appIcon.setImageDrawable(cards.get(position).getAppIcon());
         holder.appNotificationColor.setTag(cards.get(position).getAppName());
         int[][] states = new int[][] { new int[0]};
-        int[] colors = { cards.get(position).getNotificationColor() };
+        int[] colors = { cards.get(position).getMainColor() };
         ColorStateList colorList = new ColorStateList(states, colors);
         holder.appNotificationColor.setBackgroundTintList(colorList);
         holder.deleteButton.setTag(cards.get(position).getAppName());

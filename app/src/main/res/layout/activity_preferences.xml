@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:id="@+id/main_activity"
-    tools:context=".activities.MainActivity">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.Preferences">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -14,11 +12,10 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/darkPrimaryDark"
         android:elevation="1dp"
-        android:theme="@style/Device_Settings_Dark"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
+        android:theme="@style/Device_Settings_Dark" />
 
     <LinearLayout
-        android:id="@+id/switch_holder"
+        android:id="@+id/preferences_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/darkPrimary"
@@ -26,8 +23,5 @@
         android:visibility="visible" >
 
     </LinearLayout>
-
-    <include layout="@layout/content_main" />
-
 
 </LinearLayout>

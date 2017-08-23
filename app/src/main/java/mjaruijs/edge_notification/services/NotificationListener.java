@@ -33,11 +33,22 @@ public class NotificationListener extends NotificationListenerService {
         if (!sbn.getPackageName().contains("android")) {
             String appName = getAppName(sbn.getPackageName());
             Log.i(TAG, "********** onNotificationPosted");
-            Log.i(TAG, "ID: " + sbn.getId() + "\t" + appName + "\n\n");
-            Intent i = new Intent("mjaruijs.edge_notification.NOTIFICATION_LISTENER");
-            i.putExtra("notification_event", appName + "\n\n");
-            i.putExtra("notification", "posted");
-            sendBroadcast(i);
+            Log.i(TAG, "ID: " + sbn.getId() + "\t" + appName + "\t\n" + sbn.getNotification().tickerText);
+//            Intent i = new Intent("mjaruijs.edge_notification.NOTIFICATION_LISTENER");
+//            i.putExtra("notification_event", appName + "\n\n");
+            Intent intent = new Intent("mjaruijs.edge_notification.DRAW_EDGE");
+            intent.putExtra("action", appName);
+            intent.putExtra("notification_event", "posted");
+            if (sbn.getNotification().tickerText != null) {
+                intent.putExtra("ticker", sbn.getNotification().tickerText.toString());
+            } else {
+                intent.putExtra("ticker", "null");
+            }
+            intent.putExtra("notify_posted_time", sbn.getPostTime());
+//            if (!sbn.getNotification().tickerText.toString().contains("WhatApp")) {
+//                Log.i(getClass().getSimpleName(), "TICKER: " + sbn.getNotification().tickerText);
+                sendBroadcast(intent);
+//            }
         }
     }
 
@@ -47,10 +58,10 @@ public class NotificationListener extends NotificationListenerService {
             String appName = getAppName(sbn.getPackageName());
             Log.i(TAG,"********** onNotificationRemoved");
             Log.i(TAG, "ID: " + sbn.getId() + "\t" + appName);
-            Intent i = new Intent("mjaruijs.edge_notification.NOTIFICATION_LISTENER");
-            i.putExtra("notification_event", appName +"\n");
-            i.putExtra("notification", "removed");
-            sendBroadcast(i);
+            Intent intent = new Intent("mjaruijs.edge_notification.DRAW_EDGE");
+            intent.putExtra("notification_event", appName +"\n");
+            intent.putExtra("notification_event", "removed");
+            sendBroadcast(intent);
         }
     }
 

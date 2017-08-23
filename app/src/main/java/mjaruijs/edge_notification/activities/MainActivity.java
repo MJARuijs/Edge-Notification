@@ -10,6 +10,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -17,14 +18,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyCharacterMap;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -43,89 +41,36 @@ import mjaruijs.edge_notification.data.PInfo;
 import mjaruijs.edge_notification.fragments.SettingsFragment;
 import mjaruijs.edge_notification.preferences.Prefs;
 import mjaruijs.edge_notification.services.AppList;
-import mjaruijs.edge_notification.services.MainService;
+import mjaruijs.edge_notification.services.EdgeLightingService;
 import mjaruijs.edge_notification.services.RVAdapter;
 
 public class MainActivity extends AppCompatActivity  {
 
-    private RVAdapter appCardAdapter;
-    private IconMap iconMap;
-    private CardList cards;
-    String TAG = getClass().getSimpleName();
-    private Intent starterService;
-    private Dialog dia;
-    public String[] strings;
-    public Drawable[] icons;
-    private int[] colors;
-    private AppCard selectedCard;
     private AlertDialog colorAlertDialog;
+    private RVAdapter   appCardAdapter;
+    private IconMap     iconMap;
+    private CardList    cards;
+    private String      TAG = getClass().getSimpleName();
+    private Dialog      dia;
+    public  String[]    strings;
+    public  Drawable[]  icons;
+    private int[]       colors;
+    private AppCard     selectedCard;
+
     private RecyclerView appCardView;
+    private Prefs prefs;
     //public static final int SCREEN_BRIGHT_WAKE_LOCK = 0x0000000a;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        View decorView = getWindow().getDecorView();
-        Log.i(getClass().getSimpleName(), "Visibility: " + decorView.getSystemUiVisibility());
-        int uiOptions =  View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                ;
-        getWindow().setFlags(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION, View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        decorView.setSystemUiVisibility(uiOptions);
-        Log.i(getClass().getSimpleName(), "Visibility: " + decorView.getSystemUiVisibility());
-
-//        decorView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-//
-//            @Override
-//            public void onViewAttachedToWindow(View v) {
-//                Log.i(getClass().getSimpleName(), "lel");
-//
-//            }
-//
-//            @Override
-//            public void onViewDetachedFromWindow(View v) {
-//                Log.i(getClass().getSimpleName(), "Kek");
-//
-//            }
-//        });
-        decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
-                    @Override
-                    public void onSystemUiVisibilityChange(int visibility) {
-                        if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
-                            // TODO: The navigation bar is visible. Make any desired
-                            Log.i(getClass().getSimpleName(), "TRUE");
-
-                            // adjustments to your UI, such as showing the action bar or
-                            // other navigational controls.
-                        } else {
-                            // TODO: The navigation bar is NOT visible. Make any desired
-                            Log.i(getClass().getSimpleName(), "FALSE");
-
-                            // adjustments to your UI, such as hiding the action bar or
-                            // other navigational controls.
-                        }
-                    }
-                });
-//        Intent inte = new Intent(getApplicationContext(), AccessibilityServiceImpl.class);
-//        startService(inte);
-        boolean hasMenuKey = ViewConfiguration.get(getApplicationContext()).hasPermanentMenuKey();
-        boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_NAVIGATE_OUT);
-        boolean hasHomeKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_HOME);
-        boolean hasHomeMoveKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_MOVE_HOME);
-        Log.i(getClass().getSimpleName(), "MENUKEY: " + hasMenuKey);
-        Log.i(getClass().getSimpleName(), "BACKKEY: " + hasBackKey);
-        Log.i(getClass().getSimpleName(), "HOMEKEY: " + hasHomeKey);
-        Log.i(getClass().getSimpleName(), "HomeMoveKEY: " + hasHomeMoveKey);
-        starterService = new Intent(getApplicationContext(), MainService.class);
+        Intent edgeLightingService = new Intent(getApplicationContext(), EdgeLightingService.class);
 
         iconMap = new IconMap();
 
         // Preferences
-        Prefs prefs = new Prefs(getApplicationContext());
+        prefs = new Prefs(getApplicationContext());
         prefs.apply();
 
 //        if(!prefs.initialized) {
@@ -139,14 +84,11 @@ public class MainActivity extends AppCompatActivity  {
 
             // Switch
             getFragmentManager().beginTransaction()
-                    .replace(R.id.preferences_holder, new SettingsFragment())
+                    .replace(R.id.switch_holder, new SettingsFragment())
                     .commitAllowingStateLoss();
 
-            Intent starterServiceIntent = new Intent(getApplicationContext(), MainService.class);
-//            starterServiceIntent.
-//            MainService.initView(getWindow().getDecorView());
-            stopService(starterServiceIntent);
-            startService(starterServiceIntent);
+//            if (prefs.enabled)
+                startService(edgeLightingService);
 
             // TODO: Allow the user to delete a single card at a time. This should be done by long-pressing the card, after-which a delete button appears.
             // Recycle View
@@ -155,19 +97,22 @@ public class MainActivity extends AppCompatActivity  {
             final LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
 
             appCardView.setLayoutManager(llm);
-            File file = getFilesDir();
+            File file = Environment.getExternalStorageDirectory();
 
             // Get a list of installed apps.
             ArrayList<PInfo> applicationPackages = new ArrayList<>();
-//            try {
-//                //applicationPackages = getInstalledApps(false);
-//            } catch (PackageManager.NameNotFoundException e) {
-//                e.printStackTrace();
-//            }
+            try {
+                applicationPackages = getInstalledApps(false);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
 
             CardList.initialize(file);
             cards = CardList.readFromXML(iconMap);
             appCardAdapter = new RVAdapter(cards);
+
+//        Toast toast = Toast.makeText(getApplicationContext(), CardList.filePath(), Toast.LENGTH_SHORT);
+//        toast.show();
 
             AppList apps = new AppList(MainActivity.this);
             appCardView.setAdapter(appCardAdapter);
@@ -197,28 +142,28 @@ public class MainActivity extends AppCompatActivity  {
 
             dia = builder.create();
 
-        // Color Picker
-        LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
-        ColorPickerPalette colorPickerPalette = (ColorPickerPalette) layoutInflater.inflate(R.layout.custom_picker,  null);
-        colorPickerPalette.init(colors.length, 5, new ColorPickerSwatch.OnColorSelectedListener() {
-            @Override
-            public void onColorSelected(int color) {
-                Log.i(TAG, "Selected color: "+ color);
-                cards.getByName(selectedCard.getAppName()).setNotificationColor(color);
-                int[][] states = new int[][] { new int[0]};
-                int[] colors = { color };
-                ColorStateList colorList = new ColorStateList(states, colors);
-                appCardView.findViewWithTag(selectedCard.getAppName()).setBackgroundTintList(colorList);
-                colorAlertDialog.dismiss();
-            }
-        });
-        colorPickerPalette.drawPalette(colors, colors[19]);
-        colorAlertDialog = new AlertDialog.Builder(this, R.style.MyDialogTheme)
-                .setTitle(R.string.color_picker_default_title)
-                .setView(colorPickerPalette)
-                .create();
+            // Color Picker
+            LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
+            ColorPickerPalette colorPickerPalette = (ColorPickerPalette) layoutInflater.inflate(R.layout.custom_picker, null);
+            colorPickerPalette.init(colors.length, 5, new ColorPickerSwatch.OnColorSelectedListener() {
+                @Override
+                public void onColorSelected(int color) {
+                    Log.i(TAG, "Selected color: " + color);
+                    cards.getByName(selectedCard.getAppName()).setMainColor(color);
+                    int[][] states = new int[][]{new int[0]};
+                    int[] colors = {color};
+                    ColorStateList colorList = new ColorStateList(states, colors);
+                    appCardView.findViewWithTag(selectedCard.getAppName()).setBackgroundTintList(colorList);
+                    colorAlertDialog.dismiss();
+                }
+            });
+            colorPickerPalette.drawPalette(colors, colors[19]);
+            colorAlertDialog = new AlertDialog.Builder(this, R.style.MyDialogTheme)
+                    .setTitle(R.string.color_picker_default_title)
+                    .setView(colorPickerPalette)
+                    .create();
 
-            // Floating Action Button
+
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
             fab.setOnClickListener(new View.OnClickListener() {
@@ -228,8 +173,8 @@ public class MainActivity extends AppCompatActivity  {
                     dia.show();
                 }
             });
+//        }
     }
-
 
     public void onClick(View v){
         TextView textView = (TextView) v.findViewById(R.id.app_text);
@@ -237,7 +182,7 @@ public class MainActivity extends AppCompatActivity  {
         if (!cards.contains(textView.getText().toString())) {
             cards.addCard(new AppCard(textView.getText().toString(),
                     icon.getDrawable(),
-                    Color.WHITE));
+                    Color.WHITE, Color.BLACK));
             dia.hide();
             appCardAdapter.notifyDataSetChanged();
         } else {
@@ -338,10 +283,6 @@ public class MainActivity extends AppCompatActivity  {
         colorAlertDialog.show();
     }
 
-    private void restartService() {
-        stopService(starterService);
-        startService(starterService);
-    }
 
     // TODO: Add a checkbox that allows the user to add system apps too.
     private ArrayList<PInfo> getInstalledApps(boolean getSysPackages) throws PackageManager.NameNotFoundException {
@@ -398,52 +339,14 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-
-            case R.id.menu_permission:
-//                View view = LayoutInflater.from(this).inflate(R.layout.notification_screen_layout, null);
-//                view.setSystemUiVisibility( WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-//                        | WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN
-//                        | WindowManager.LayoutParams.FLAG_LAYOUT_ATTACHED_IN_DECOR
-//                        //| WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN
-////                    | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-//                        | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-////                    |WindowManager.LayoutParams.FLAG_FULLSCREEN
-//                        | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//                getWindow().setFlags( WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY, // TYPE_SYSTEM_ALERT is denied in apiLevel >=19
-//                       // WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-//                                 WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN
-//                                //| WindowManager.LayoutParams.FLAG_LAYOUT_ATTACHED_IN_DECOR
-//                                //| WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN
-////                    | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-//                                | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-////                    |WindowManager.LayoutParams.FLAG_FULLSCREEN
-//                                // WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-//                );
-//                View parent = getWindow().getDecorView();
-//
-//                PopupWindow pw = new PopupWindow(view, 1440, 2960, false);
-//                pw.setWindowLayoutType(WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY);
-////                pw.showAtLocation(parent, Gravity.BOTTOM, 0, 0);
-//                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Alert_Dialog_Dark);
-//
-//                builder.setView(R.layout.notification_screen_layout);
-////                builder.setTitle("DIA");
-////        dialog.show();
-//                Dialog dia = builder.create();
-//                dia.setContentView(R.layout.notification_screen_layout);
-//                RemoteViews rv = new RemoteViews(getPackageName(), R.layout.notification_screen_layout);
-//
-//
-//
-//                dia.show();
-                Intent i = new Intent(MainActivity.this, LockScreenActivity.class);
-                i.putExtra("color", "Notification Dummy");
+            case R.id.menu_preferences:
+                Intent i = new Intent(this, Preferences.class);
                 startActivity(i);
+            case R.id.menu_permission:
                 return true;
             case R.id.delete_all:
                 cards.clear();
                 appCardAdapter.notifyDataSetChanged();
-                restartService();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -459,6 +362,9 @@ public class MainActivity extends AppCompatActivity  {
     public void onDestroy() {
         super.onDestroy();
         cards.writeToFile();
+
+        if (prefs.initialized) {
+        }
     }
 
     @Override

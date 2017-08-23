@@ -8,6 +8,7 @@ public class Prefs {
 
     public boolean initialized;
     public boolean enabled;
+    public boolean keepFlashing;
 
     private SharedPreferences prefs;
 
@@ -17,6 +18,7 @@ public class Prefs {
 
     public void apply() {
         enabled = prefs.getBoolean(KEYS.ENABLED.toString(), false);
+        keepFlashing = prefs.getBoolean(KEYS.KEEP_FLASHING.toString(), false);
         initialized = prefs.getBoolean(KEYS.INITIALIZED.toString(), false);
     }
 
@@ -26,7 +28,8 @@ public class Prefs {
 
     public enum KEYS {
         ENABLED("enabled"),
-        INITIALIZED("initialized");
+        INITIALIZED("initialized"),
+        KEEP_FLASHING("keepFlashing");
 
         private final String id;
 

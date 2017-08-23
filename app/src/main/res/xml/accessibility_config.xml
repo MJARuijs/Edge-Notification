@@ -1,6 +1,0 @@
-<accessibility-service
-    android:accessibilityEventTypes="typeViewClicked|typeWindowStateChanged|typeWindowsChanged"
-    android:notificationTimeout="100"
-    android:settingsActivity="com.example.android.apis.accessibility.Edge-Notification"
-    android:canRetrieveWindowContent="true"
-    xmlns:android="http://schemas.android.com/apk/res/android" />

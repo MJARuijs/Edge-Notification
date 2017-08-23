@@ -20,7 +20,7 @@
     <color name="light_blue">#00A6F6</color>
     <color name="cyan">#00BBD5</color>
     <color name="teal">#009687</color>
-    <color name="green">#46af4a</color>
+    <color name="green">#46AF4A</color>
     <color name="light_green">#88C440</color>
     <color name="lime">#CCDD1E</color>
     <color name="yellow">#FFEC16</color>
@@ -30,4 +30,5 @@
     <color name="brown">#7A5547</color>
     <color name="grey">#9D9D9D</color>
     <color name="blue_grey">#5E7C8B</color>
+    <color name="white">#FFFFFF</color>
 </resources>
