@@ -150,7 +150,7 @@ public class EdgeLightingService extends Service implements SensorEventListener 
     private int setSecondColor(String name) {
         AppCard selectedCard = getSelectedCard(name);
         if (selectedCard != null) {
-            return selectedCard.getSecondColor();
+            return Color.YELLOW;
         } else {
             return Color.BLACK;
         }
@@ -281,6 +281,7 @@ public class EdgeLightingService extends Service implements SensorEventListener 
             Log.i(getClass().getSimpleName(), "NEW VALUE: " + accuracy);
         }
     }
+
     class EdgeReceiver extends BroadcastReceiver {
 
         final EdgeLightingService edgeService;

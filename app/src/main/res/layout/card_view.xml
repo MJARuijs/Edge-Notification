@@ -28,6 +28,7 @@
                 android:id="@+id/delete_background"
                 android:layout_width="344dp"
                 android:layout_height="60dp"
+                android:contentDescription="@string/delete_background"
                 android:visibility="invisible"
                 card_view:layout_constraintBottom_toBottomOf="parent"
                 card_view:srcCompat="@color/red"

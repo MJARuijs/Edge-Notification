@@ -26,7 +26,6 @@ public class Variables {
 
     public Variables(Context context) {
         this.context = context;
-//        this.integers = new int[]{-65536, -65281, -256};
 
         this.integers = new int[]{Color.GREEN, Color.BLACK, Color.GREEN};
         this.floats = new float[]{0.0f, 0.50f, 1.0f};

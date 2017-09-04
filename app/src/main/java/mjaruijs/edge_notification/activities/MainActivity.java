@@ -9,8 +9,10 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -41,7 +43,7 @@ import mjaruijs.edge_notification.data.PInfo;
 import mjaruijs.edge_notification.fragments.SettingsFragment;
 import mjaruijs.edge_notification.preferences.Prefs;
 import mjaruijs.edge_notification.services.AppList;
-import mjaruijs.edge_notification.services.EdgeLightingService;
+import mjaruijs.edge_notification.services.MainService;
 import mjaruijs.edge_notification.services.RVAdapter;
 
 public class MainActivity extends AppCompatActivity  {
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Intent edgeLightingService = new Intent(getApplicationContext(), EdgeLightingService.class);
+//        Intent edgeLightingService = new Intent(getApplicationContext(), EdgeLightingService.class);
 
         iconMap = new IconMap();
 
@@ -73,10 +75,10 @@ public class MainActivity extends AppCompatActivity  {
         prefs = new Prefs(getApplicationContext());
         prefs.apply();
 
-//        if(!prefs.initialized) {
-//            startActivity(new Intent(getApplicationContext(), IntroActivity.class));
-//            finish();
-//        } else {
+        if(!prefs.initialized) {
+            startActivity(new Intent(getApplicationContext(), IntroActivityFS.class));
+            finish();
+        } else {
 
             // Toolbar
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -87,10 +89,10 @@ public class MainActivity extends AppCompatActivity  {
                     .replace(R.id.switch_holder, new SettingsFragment())
                     .commitAllowingStateLoss();
 
-//            if (prefs.enabled)
-                startService(edgeLightingService);
+            if (prefs.enabled){
+                startService(new Intent(this, MainService.class));
+            }
 
-            // TODO: Allow the user to delete a single card at a time. This should be done by long-pressing the card, after-which a delete button appears.
             // Recycle View
             appCardView = (RecyclerView) findViewById(R.id.recycle_view);
 
@@ -136,11 +138,12 @@ public class MainActivity extends AppCompatActivity  {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-
+                    Log.i(TAG, "Which: " + which);
                 }
             });
 
             dia = builder.create();
+            dia.setCancelable(true);
 
             // Color Picker
             LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
@@ -173,7 +176,7 @@ public class MainActivity extends AppCompatActivity  {
                     dia.show();
                 }
             });
-//        }
+        }
     }
 
     public void onClick(View v){
@@ -295,13 +298,29 @@ public class MainActivity extends AppCompatActivity  {
 
         List<PackageInfo> applications = pm.getInstalledPackages(flags);
 
-        for (PackageInfo appInfo : applications) {
-            if ((appInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1) {
-                PInfo newInfo = new PInfo();
-                newInfo.appName = appInfo.applicationInfo.loadLabel(getPackageManager()).toString();
-                newInfo.icon = appInfo.applicationInfo.loadIcon(getPackageManager());
-                res.add(newInfo);
-                iconMap.add(newInfo.appName, newInfo.icon);
+        if (getSysPackages) {
+            for (PackageInfo appInfo : applications) {
+//                Log.i(TAG, "Package name: " + appInfo.packageName + " " + appInfo.applicationInfo.loadLabel(getPackageManager()).toString());
+
+                    PInfo newInfo = new PInfo();
+                    newInfo.appName = appInfo.applicationInfo.loadLabel(getPackageManager()).toString();
+                    newInfo.icon = appInfo.applicationInfo.loadIcon(getPackageManager());
+                    res.add(newInfo);
+                    iconMap.add(newInfo.appName, newInfo.icon);
+            }
+        } else {
+            for (PackageInfo appInfo : applications) {
+//                Log.i(TAG, "Package name: " + appInfo.packageName + " " + appInfo.applicationInfo.loadLabel(getPackageManager()).toString());
+                if (((appInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1)
+                        || (appInfo.applicationInfo.loadLabel(getPackageManager()).toString().equals("Gmail"))
+                        || (appInfo.applicationInfo.loadLabel(getPackageManager()).toString().equals("YouTube"))
+                        || (appInfo.packageName.contains("facebook")) && !appInfo.applicationInfo.loadLabel(getPackageManager()).toString().contains("App")) {
+                    PInfo newInfo = new PInfo();
+                    newInfo.appName = appInfo.applicationInfo.loadLabel(getPackageManager()).toString();
+                    newInfo.icon = appInfo.applicationInfo.loadIcon(getPackageManager());
+                    res.add(newInfo);
+                    iconMap.add(newInfo.appName, newInfo.icon);
+                }
             }
         } return res;
     }
@@ -343,14 +362,42 @@ public class MainActivity extends AppCompatActivity  {
                 Intent i = new Intent(this, Preferences.class);
                 startActivity(i);
             case R.id.menu_permission:
+                Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                permissionIntent.setData(uri);
+                startActivity(permissionIntent);
                 return true;
             case R.id.delete_all:
-                cards.clear();
-                appCardAdapter.notifyDataSetChanged();
+                showWarningDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showWarningDialog() {
+        final AlertDialog warningDialog;
+        warningDialog = new AlertDialog.Builder(this, R.style.MyDialogTheme)
+                .setTitle("Warning!")
+                .setMessage("Are you sure you want to delete all Cards?")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        cards.clear();
+                        dialog.dismiss();
+                        appCardAdapter.notifyDataSetChanged();
+                    }
+                })
+                .create();
+        warningDialog.show();
     }
 
     @Override
@@ -361,16 +408,21 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        cards.writeToFile();
+//        prefs.setBool(Prefs.KEYS.INITIALIZED.toString(), false);
 
         if (prefs.initialized) {
+            dia.dismiss();
+            cards.writeToFile();
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         Log.i(TAG, "onSaveInstanceState");
-        cards.writeToFile();
+        if (prefs.initialized) {
+            dia.dismiss();
+            cards.writeToFile();
+        }
         super.onSaveInstanceState(outState);
     }
 }
