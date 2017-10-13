@@ -32,8 +32,6 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
 
     @Override
     public void onBindViewHolder(final CardViewHolder holder, final int position) {
-        Log.i(getClass().getSimpleName(), "ADDING");
-
         Card card = cards.get(position);
 
         final String tag = cards.get(position).getAppName();

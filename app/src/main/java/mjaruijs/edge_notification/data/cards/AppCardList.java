@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 import mjaruijs.edge_notification.data.IconMap;
 
-public class AppCardList extends CardList{
+public class AppCardList extends CardList {
 
     private static List<AppCard> appCardList;
     private static File file;
@@ -30,7 +30,6 @@ public class AppCardList extends CardList{
         super.addCard(card);
         appCardList.add(card);
     }
-
 
     public void deleteCard(String name) {
         super.deleteCard(name);
@@ -62,8 +61,27 @@ public class AppCardList extends CardList{
         return false;
     }
 
-    public static void clear() {
-        Log.i(TAG, "Clearing " + appCardList.size());
+    public List<AppCard> getSelectedCards() {
+        List<AppCard> selectedCards = new ArrayList<>();
+        for (AppCard card : appCardList) {
+            if (card.isSelected()) {
+                selectedCards.add(card);
+            }
+        }
+
+        return selectedCards;
+    }
+
+    public AppCard getByName(String appName) {
+        for (AppCard card : appCardList) {
+            if (card.getAppName().equals(appName)) {
+                return card;
+            }
+        } return null;
+    }
+
+    public void clear() {
+        super.clear();
         appCardList.clear();
     }
 

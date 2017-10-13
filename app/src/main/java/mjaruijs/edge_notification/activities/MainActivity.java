@@ -42,7 +42,6 @@ import mjaruijs.edge_notification.data.IconMap;
 import mjaruijs.edge_notification.data.PInfo;
 import mjaruijs.edge_notification.data.cards.AppCard;
 import mjaruijs.edge_notification.data.cards.AppCardList;
-import mjaruijs.edge_notification.data.cards.Card;
 import mjaruijs.edge_notification.fragments.SettingsFragment;
 import mjaruijs.edge_notification.preferences.Prefs;
 import mjaruijs.edge_notification.services.AppList;
@@ -59,7 +58,7 @@ public class MainActivity extends AppCompatActivity  {
     public  String[]    strings;
     public  Drawable[]  icons;
     private int[]       colors;
-    private Card selectedCard;
+    private AppCard selectedCard;
 
     private RecyclerView appCardView;
     private Prefs prefs;
@@ -68,7 +67,6 @@ public class MainActivity extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        Intent edgeLightingService = new Intent(getApplicationContext(), EdgeLightingService.class);
 
         iconMap = new IconMap();
 
@@ -150,7 +148,7 @@ public class MainActivity extends AppCompatActivity  {
             colorPickerPalette.init(colors.length, 5, new ColorPickerSwatch.OnColorSelectedListener() {
                 @Override
                 public void onColorSelected(int color) {
-                    ((AppCard)cards.getByName(selectedCard.getAppName())).setColor(color);
+                    cards.getByName(selectedCard.getAppName()).setColor(color);
                     int[][] states = new int[][]{new int[0]};
                     int[] colors = {color};
                     ColorStateList colorList = new ColorStateList(states, colors);
@@ -215,7 +213,7 @@ public class MainActivity extends AppCompatActivity  {
         final String deleteBackGrdTag = tag + "_Del_Backgrd";
 
         if (cards.multipleSelected()) {
-            final List<Card> selectedCards = cards.getSelectedCards();
+            final List<AppCard> selectedCards = cards.getSelectedCards();
             final AlertDialog warningDialog;
             warningDialog = new AlertDialog.Builder(this, R.style.MyDialogTheme)
                     .setTitle("Multiple Items Selected!")
@@ -224,7 +222,7 @@ public class MainActivity extends AppCompatActivity  {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            for (Card card : selectedCards) {
+                            for (AppCard card : selectedCards) {
                                 String nameTag = card.getAppName() + "_Name";
                                 String iconTag = card.getAppName() + "_Icon";
                                 String deleteBtnTag = card.getAppName() + "_Del_Btn";
@@ -247,7 +245,7 @@ public class MainActivity extends AppCompatActivity  {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Log.i(TAG, "Deleting " + tag);
-                            for (Card card : selectedCards) {
+                            for (AppCard card : selectedCards) {
                                 String nameTag = card.getAppName() + "_Name";
                                 String iconTag = card.getAppName() + "_Icon";
                                 String deleteBtnTag = card.getAppName() + "_Del_Btn";
@@ -392,18 +390,13 @@ public class MainActivity extends AppCompatActivity  {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        clearCards();
-
-                        dialog.dismiss();
+                        cards.clear();
                         appCardAdapter.notifyDataSetChanged();
+                        dialog.dismiss();
                     }
                 })
                 .create();
         warningDialog.show();
-    }
-
-    private static void clearCards() {
-        AppCardList.clear();
     }
 
     @Override

@@ -2,7 +2,7 @@ package mjaruijs.edge_notification.data.cards;
 
 import android.graphics.drawable.Drawable;
 
-public class AppCard extends Card{
+public class AppCard extends Card {
 
     private int color;
 

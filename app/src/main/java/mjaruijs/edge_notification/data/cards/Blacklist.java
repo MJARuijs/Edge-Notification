@@ -22,7 +22,8 @@ public class Blacklist extends CardList {
         blacklist.add(card);
     }
 
-    public static void clear() {
+    public void clear() {
+
         Log.i(TAG, "Clearing " + blacklist.size());
         blacklist.clear();
     }

@@ -45,32 +45,32 @@ public abstract class CardList {
         } return null;
     }
 
-//    public static boolean multipleSelected() {
-//        int counter = 0;
-//        for (Card card : list) {
-//            if (card.isSelected()) {
-//                counter++;
-//            }
-//            if (counter > 1) {
-//                Log.i("CardList", "multiple selected");
-//                return true;
-//            }
-//        }
-//        Log.i("CardList", "0/1 selected");
-//
-//        return false;
-//    }
-
-    public List<Card> getSelectedCards() {
-        List<Card> selectedCards = new ArrayList<>();
+    public boolean multipleSelected() {
+        int counter = 0;
         for (Card card : list) {
             if (card.isSelected()) {
-                selectedCards.add(card);
+                counter++;
+            }
+            if (counter > 1) {
+                Log.i("CardList", "multiple selected");
+                return true;
             }
         }
+        Log.i("CardList", "0/1 selected");
 
-        return selectedCards;
+        return false;
     }
+
+//    public List<Card> getSelectedCards() {
+//        List<Card> selectedCards = new ArrayList<>();
+//        for (Card card : list) {
+//            if (card.isSelected()) {
+//                selectedCards.add(card);
+//            }
+//        }
+//
+//        return selectedCards;
+//    }
 
     public Card setSelected(String appName) {
         Card selected = getByName(appName);
@@ -95,7 +95,7 @@ public abstract class CardList {
         return list.size();
     }
 
-    public static void clear() {
+    public void clear() {
         Log.i("CardList", "CLEAR " + list.size());
 
         list.clear();
