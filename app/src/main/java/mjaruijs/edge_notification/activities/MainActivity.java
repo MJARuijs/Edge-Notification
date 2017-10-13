@@ -13,22 +13,18 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -37,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mjaruijs.edge_notification.R;
-import mjaruijs.edge_notification.adapters.BlacklistAdapter;
 import mjaruijs.edge_notification.adapters.CardAdapter;
 import mjaruijs.edge_notification.color_picker.ColorPickerPalette;
 import mjaruijs.edge_notification.color_picker.ColorPickerSwatch;
@@ -47,10 +42,7 @@ import mjaruijs.edge_notification.data.IconMap;
 import mjaruijs.edge_notification.data.PInfo;
 import mjaruijs.edge_notification.data.cards.AppCard;
 import mjaruijs.edge_notification.data.cards.AppCardList;
-import mjaruijs.edge_notification.data.cards.BlackCard;
-import mjaruijs.edge_notification.data.cards.Blacklist;
 import mjaruijs.edge_notification.data.cards.Card;
-import mjaruijs.edge_notification.data.cards.CardList;
 import mjaruijs.edge_notification.fragments.SettingsFragment;
 import mjaruijs.edge_notification.preferences.Prefs;
 import mjaruijs.edge_notification.services.AppList;
@@ -60,46 +52,17 @@ public class MainActivity extends AppCompatActivity  {
 
     private AlertDialog colorAlertDialog;
     private CardAdapter appCardAdapter;
-    private BlacklistAdapter blacklistAdapter;
     private IconMap     iconMap;
     private AppCardList cards;
-    private Blacklist blacklistCards;
     private String      TAG = getClass().getSimpleName();
     private Dialog      dia;
     public  String[]    strings;
     public  Drawable[]  icons;
     private int[]       colors;
     private Card selectedCard;
-    private static String adapter;
 
     private RecyclerView appCardView;
     private Prefs prefs;
-    //public static final int SCREEN_BRIGHT_WAKE_LOCK = 0x0000000a;
-
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    appCardView.setAdapter(appCardAdapter);
-                    adapter = "cards";
-//                    mTextMessage.setText(R.string.title_home);
-                    return true;
-                case R.id.navigation_dashboard:
-                    appCardView.setAdapter(blacklistAdapter);
-                    adapter = "blacklist";
-//                    mTextMessage.setText(R.string.title_dashboard);
-                    return true;
-                case R.id.navigation_notifications:
-//                    mTextMessage.setText(R.string.title_notifications);
-                    return true;
-            }
-            return false;
-        }
-
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +71,7 @@ public class MainActivity extends AppCompatActivity  {
 //        Intent edgeLightingService = new Intent(getApplicationContext(), EdgeLightingService.class);
 
         iconMap = new IconMap();
-        adapter = "cards";
+
         // Preferences
         prefs = new Prefs(getApplicationContext());
         prefs.apply();
@@ -149,10 +112,8 @@ public class MainActivity extends AppCompatActivity  {
             Data.initialize(file, iconMap);
 
             cards = Data.getCards();
-            blacklistCards = Data.getBlacklist();
 
             appCardAdapter = new CardAdapter(cards);
-            blacklistAdapter = new BlacklistAdapter(blacklistCards);
 
             AppList apps = new AppList(MainActivity.this);
             appCardView.setAdapter(appCardAdapter);
@@ -183,35 +144,12 @@ public class MainActivity extends AppCompatActivity  {
             dia = builder.create();
             dia.setCancelable(true);
 
-            final AlertDialog.Builder textBuilder = new AlertDialog.Builder(this);
-            final EditText input = new EditText(this);
-            input.setInputType(InputType.TYPE_CLASS_TEXT);
-
-            final AlertDialog textDialog;
-
-            textBuilder.setView(input)
-                    .setTitle("Enter name")
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-//                            test(input.getText().toString());
-//                            Log.i(getClass().getSimpleName(), "Input: " + input.getText().toString());
-//                            cards.getByName(selectedCard.getAppName()).blackListItem(input.getText().toString());
-//                            Log.i(getClass().getSimpleName(), "UPDATED");
-//                            appCardAdapter.notifyDataSetChanged();
-//                            dialog.dismiss();
-                        }
-                    });
-
-            textDialog = textBuilder.create();
-
             // Color Picker
             LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
             ColorPickerPalette colorPickerPalette = (ColorPickerPalette) layoutInflater.inflate(R.layout.custom_picker, null);
             colorPickerPalette.init(colors.length, 5, new ColorPickerSwatch.OnColorSelectedListener() {
                 @Override
                 public void onColorSelected(int color) {
-                    Log.i(TAG, "Selected color: " + color);
                     ((AppCard)cards.getByName(selectedCard.getAppName())).setColor(color);
                     int[][] states = new int[][]{new int[0]};
                     int[] colors = {color};
@@ -220,6 +158,7 @@ public class MainActivity extends AppCompatActivity  {
                     colorAlertDialog.dismiss();
                 }
             });
+
             colorPickerPalette.drawPalette(colors, colors[19]);
             colorAlertDialog = new AlertDialog.Builder(this, R.style.MyDialogTheme)
                     .setTitle(R.string.color_picker_default_title)
@@ -237,35 +176,17 @@ public class MainActivity extends AppCompatActivity  {
                 }
             });
 
-            BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-            navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
         }
     }
 
-//    public void test(String text) {
-//        Log.i(getClass().getSimpleName(), "Input: " + text + " " + cards.getSelectedCards().size());
-////                            cards.getSelectedCards().get(0).blackListItem(text);
-//                            Log.i(getClass().getSimpleName(), "UPDATED " + cards.getSelectedCards().get(0).getAppName());
-//                            appCardAdapter.notifyDataSetChanged();
-//    }
-
     public void onClick(View v){
-        Log.i(getClass().getSimpleName(), "CLICKED");
         TextView textView = (TextView) v.findViewById(R.id.app_text);
         ImageView icon = (ImageView) v.findViewById(R.id.app_icon);
         if (!cards.contains(textView.getText().toString())) {
 
             String appName = textView.getText().toString();
-            if (adapter.equals("cards")) {
-                cards.addCard(new AppCard(appName,
-                        icon.getDrawable(),
-                        Color.WHITE));
-                appCardAdapter.notifyDataSetChanged();
-            } else {
-                blacklistCards.addCard(new BlackCard(appName, icon.getDrawable(), "WhatsApp"));
-                blacklistAdapter.notifyDataSetChanged();
-            }
+            cards.addCard(new AppCard(appName, icon.getDrawable(), Color.WHITE));
+            appCardAdapter.notifyDataSetChanged();
             dia.hide();
         } else {
             final Dialog warningDialog;
@@ -292,7 +213,8 @@ public class MainActivity extends AppCompatActivity  {
         final String iconTag = tag + "_Icon";
         final String deleteBtnTag = tag + "_Del_Btn";
         final String deleteBackGrdTag = tag + "_Del_Backgrd";
-        if (CardList.multipleSelected()) {
+
+        if (cards.multipleSelected()) {
             final List<Card> selectedCards = cards.getSelectedCards();
             final AlertDialog warningDialog;
             warningDialog = new AlertDialog.Builder(this, R.style.MyDialogTheme)
@@ -314,7 +236,7 @@ public class MainActivity extends AppCompatActivity  {
                                     appCardView.findViewWithTag(card.getAppName()).setVisibility(View.VISIBLE);
                                     appCardView.findViewWithTag(deleteBtnTag).setVisibility(View.INVISIBLE);
                                     appCardView.findViewWithTag(deleteBackGrdTag).setVisibility(View.INVISIBLE);
-                                    CardList.deleteCard(card.getAppName());
+                                    cards.deleteCard(card.getAppName());
                                 }
                             }
                             appCardAdapter.notifyDataSetChanged();
@@ -336,7 +258,7 @@ public class MainActivity extends AppCompatActivity  {
                                 appCardView.findViewWithTag(deleteBtnTag).setVisibility(View.INVISIBLE);
                                 appCardView.findViewWithTag(deleteBackGrdTag).setVisibility(View.INVISIBLE);
                             }
-                            CardList.deleteCard(v.getTag().toString());
+                            cards.deleteCard(v.getTag().toString());
                             appCardAdapter.notifyDataSetChanged();
                             dialog.dismiss();
                         }
@@ -355,7 +277,7 @@ public class MainActivity extends AppCompatActivity  {
             appCardView.findViewWithTag(tag).setVisibility(View.VISIBLE);
             appCardView.findViewWithTag(deleteBtnTag).setVisibility(View.INVISIBLE);
             appCardView.findViewWithTag(deleteBackGrdTag).setVisibility(View.INVISIBLE);
-            CardList.deleteCard(v.getTag().toString());
+            cards.deleteCard(v.getTag().toString());
         }
         appCardAdapter.notifyDataSetChanged();
     }
@@ -474,7 +396,6 @@ public class MainActivity extends AppCompatActivity  {
 
                         dialog.dismiss();
                         appCardAdapter.notifyDataSetChanged();
-                        blacklistAdapter.notifyDataSetChanged();
                     }
                 })
                 .create();
@@ -482,14 +403,7 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     private static void clearCards() {
-        switch (adapter) {
-            case "cards":
-                AppCardList.clear();
-                break;
-            case "blacklist":
-                Data.getBlacklist().clear();
-                break;
-        }
+        AppCardList.clear();
     }
 
     @Override
@@ -504,7 +418,7 @@ public class MainActivity extends AppCompatActivity  {
 
         if (prefs.initialized) {
             dia.dismiss();
-                Data.writeToFile();
+            Data.writeToFile();
         }
     }
 
@@ -513,7 +427,7 @@ public class MainActivity extends AppCompatActivity  {
         Log.i(TAG, "onSaveInstanceState");
         if (prefs.initialized) {
             dia.dismiss();
-        Data.writeToFile();
+            Data.writeToFile();
         }
         super.onSaveInstanceState(outState);
     }

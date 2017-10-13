@@ -13,7 +13,6 @@ public abstract class CardList {
         list = new ArrayList<>();
     }
 
-
     void addCard(Card card) {
         list.add(card);
     }
@@ -26,15 +25,16 @@ public abstract class CardList {
         } return false;
     }
 
-    public static void deleteCard(String name) {
-        List<Card> newAppList = new ArrayList<>();
+    public void deleteCard(String name) {
         String appName = name.replace("_Del_Btn", "");
         for (int i = 0; i < list.size(); i++) {
-            if (!list.get(i).getAppName().equals(appName)) {
-                newAppList.add(list.get(i));
+
+            if (list.get(i).getAppName().equals(appName)) {
+                list.remove(i);
+                break;
             }
+
         }
-        list = newAppList;
     }
 
     public Card getByName(String appName) {
@@ -45,21 +45,21 @@ public abstract class CardList {
         } return null;
     }
 
-    public static boolean multipleSelected() {
-        int counter = 0;
-        for (Card card : list) {
-            if (card.isSelected()) {
-                counter++;
-            }
-            if (counter > 1) {
-                Log.i("CardList", "multiple selected");
-                return true;
-            }
-        }
-        Log.i("CardList", "0/1 selected");
-
-        return false;
-    }
+//    public static boolean multipleSelected() {
+//        int counter = 0;
+//        for (Card card : list) {
+//            if (card.isSelected()) {
+//                counter++;
+//            }
+//            if (counter > 1) {
+//                Log.i("CardList", "multiple selected");
+//                return true;
+//            }
+//        }
+//        Log.i("CardList", "0/1 selected");
+//
+//        return false;
+//    }
 
     public List<Card> getSelectedCards() {
         List<Card> selectedCards = new ArrayList<>();

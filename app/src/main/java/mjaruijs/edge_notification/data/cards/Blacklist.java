@@ -1,15 +1,10 @@
 package mjaruijs.edge_notification.data.cards;
 
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-
-import mjaruijs.edge_notification.data.IconMap;
 
 public class Blacklist extends CardList {
 
@@ -32,40 +27,40 @@ public class Blacklist extends CardList {
         blacklist.clear();
     }
 
-    public static Blacklist readFromXML(IconMap iconMap) {
-        Blacklist list = new Blacklist();
-        String line;
-        String appName = "";
-        Drawable icon = null;
-        String blacklistName = "";
-        try {
-            Scanner sc = new Scanner(file);
-            sc.next();
-            do {
-                line = sc.nextLine();
-                if (line.contains("<blacklist>")) {
-                    do {
-                        line = sc.nextLine();
-                        if (line.contains("<name>")) {
-                            appName = getValue(line);
-                            icon = iconMap.getValue(appName);
-                        } else if (line.contains("<item>")) {
-                            blacklistName = getValue(line);
-                        } else if (line.contains("</black-card>")) {
-                            blacklist.add(new BlackCard(appName, icon, blacklistName));
-                        }
-
-                    } while(!line.contains("</blacklist>"));
-                }
-
-            } while(!line.contains("</resources>"));
-
-            Log.i("BLACKLIST PARSER: ", list.toString());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
+//    public static Blacklist readFromXML(IconMap iconMap) {
+//        Blacklist list = new Blacklist();
+//        String line;
+//        String appName = "";
+//        Drawable icon = null;
+//        String blacklistName = "";
+//        try {
+//            Scanner sc = new Scanner(file);
+//            sc.next();
+//            do {
+//                line = sc.nextLine();
+//                if (line.contains("<blacklist>")) {
+//                    do {
+//                        line = sc.nextLine();
+//                        if (line.contains("<name>")) {
+//                            appName = getValue(line);
+//                            icon = iconMap.getValue(appName);
+//                        } else if (line.contains("<item>")) {
+//                            blacklistName = getValue(line);
+//                        } else if (line.contains("</black-card>")) {
+//                            blacklist.add(new BlackCard(appName, icon, blacklistName));
+//                        }
+//
+//                    } while(!line.contains("</blacklist>"));
+//                }
+//
+//            } while(!line.contains("</resources>"));
+//
+//            Log.i("BLACKLIST PARSER: ", list.toString());
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        return list;
+//    }
 
     @Override
     public String toString() {

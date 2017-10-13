@@ -1,6 +1,5 @@
 package mjaruijs.edge_notification.data.cards;
 
-
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
@@ -32,6 +31,37 @@ public class AppCardList extends CardList{
         appCardList.add(card);
     }
 
+
+    public void deleteCard(String name) {
+        super.deleteCard(name);
+        String appName = name.replace("_Del_Btn", "");
+
+        for (int i = 0; i < appCardList.size(); i++) {
+
+            if (appCardList.get(i).getAppName().equals(appName)) {
+                appCardList.remove(i);
+                break;
+            }
+
+        }
+    }
+
+    public boolean multipleSelected() {
+        int counter = 0;
+        for (AppCard card : appCardList) {
+            if (card.isSelected()) {
+                counter++;
+            }
+            if (counter > 1) {
+                Log.i("CardList", "multiple selected");
+                return true;
+            }
+        }
+        Log.i("CardList", "0/1 selected");
+
+        return false;
+    }
+
     public static void clear() {
         Log.i(TAG, "Clearing " + appCardList.size());
         appCardList.clear();
@@ -50,21 +80,17 @@ public class AppCardList extends CardList{
                 do {
 
                     line = sc.nextLine();
-//                    Log.i("LINE", line);
                     if (line.contains("<name>")) {
                         appName = getValue(line);
                         icon = iconMap.getValue(appName);
                     } else if (line.contains("<color>")) {
                         color = Integer.parseInt(getValue(line));
-                    } else if (line.contains("</black-card>")) {
-                        appCardList.add(new AppCard(appName, icon, color));
+                    } else if (line.contains("</app-card>")) {
+                        list.addCard(new AppCard(appName, icon, color));
                     }
 
                 } while(!line.contains("</app-list>") && sc.hasNextLine());
             }
-
-
-
             Log.i("CARD PARSER: ", list.toString());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -86,7 +112,6 @@ public class AppCardList extends CardList{
         }
 
         fileContent += "\n</app-list>";
-//        Log.i("CARDLIST TO STRING", fileContent);
         return fileContent;
     }
 }
