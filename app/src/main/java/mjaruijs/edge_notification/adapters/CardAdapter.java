@@ -3,7 +3,6 @@ package mjaruijs.edge_notification.adapters;
 import android.content.res.ColorStateList;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,14 +12,14 @@ import android.widget.TextView;
 
 import mjaruijs.edge_notification.R;
 import mjaruijs.edge_notification.data.cards.AppCard;
+import mjaruijs.edge_notification.data.cards.AppCardList;
 import mjaruijs.edge_notification.data.cards.Card;
-import mjaruijs.edge_notification.data.cards.CardList;
 
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder> {
 
-    private CardList cards;
+    private AppCardList cards;
 
-    public CardAdapter(CardList cards){
+    public CardAdapter(AppCardList cards){
         this.cards = cards;
     }
 
@@ -45,7 +44,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
         holder.appNotificationColor.setTag(card.getAppName());
 
         if (card instanceof AppCard) {
-            int[][] states = new int[][] { new int[0]};
+            int[][] states = new int[][] { new int[0] };
             int[] colors = { ((AppCard) card).getColor()};
             ColorStateList colorList = new ColorStateList(states, colors);
             holder.appNotificationColor.setBackgroundTintList(colorList);
@@ -70,6 +69,8 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
             }
         });
 
+
+
     }
 
     @Override
@@ -89,6 +90,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
         TextView appName;
         ImageView appIcon;
         Button appNotificationColor;
+        Button blacklistButton;
 
         CardViewHolder(View itemView) {
             super(itemView);
@@ -98,6 +100,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
             appName = (TextView) itemView.findViewById(R.id.app_name);
             appIcon = (ImageView) itemView.findViewById(R.id.app_icon);
             appNotificationColor = (Button) itemView.findViewById(R.id.app_notification_color);
+            blacklistButton = (Button) itemView.findViewById(R.id.blacklist_button);
         }
     }
 }

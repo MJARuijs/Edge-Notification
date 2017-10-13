@@ -1,4 +1,4 @@
-package mjaruijs.edge_notification.services;
+package mjaruijs.edge_notification.adapters;
 
 import android.app.Activity;
 import android.database.DataSetObserver;

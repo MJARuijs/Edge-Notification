@@ -1,5 +1,6 @@
 package mjaruijs.edge_notification.data;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.File;
@@ -15,10 +16,10 @@ public class Data {
 //    private static Blacklist blacklist;
     private static File file;
 
-    public static void initialize(File appFile, IconMap iconMap) {
+    public static void initialize(File appFile, IconMap iconMap, Context context) {
         final String fileName = "app_array.txt";
         file = new File(appFile, fileName);
-        AppCardList.initialize(file);
+        AppCardList.initialize(file, context);
 //        Blacklist.initialize(file);
         appCardList = AppCardList.readFromXML(iconMap);
 //        blacklist = Blacklist.readFromXML(iconMap);

@@ -44,7 +44,7 @@ import mjaruijs.edge_notification.data.cards.AppCard;
 import mjaruijs.edge_notification.data.cards.AppCardList;
 import mjaruijs.edge_notification.fragments.SettingsFragment;
 import mjaruijs.edge_notification.preferences.Prefs;
-import mjaruijs.edge_notification.services.AppList;
+import mjaruijs.edge_notification.adapters.AppList;
 import mjaruijs.edge_notification.services.MainService;
 
 public class MainActivity extends AppCompatActivity  {
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity  {
                 e.printStackTrace();
             }
             File file = Environment.getExternalStorageDirectory();
-            Data.initialize(file, iconMap);
+            Data.initialize(file, iconMap, this);
 
             cards = Data.getCards();
 
@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity  {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Log.i(TAG, "Which: " + which);
+
                 }
             });
 
@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity  {
         if (!cards.contains(textView.getText().toString())) {
 
             String appName = textView.getText().toString();
-            cards.addCard(new AppCard(appName, icon.getDrawable(), Color.WHITE));
+            cards.addCard(new AppCard(appName, icon.getDrawable(), Color.WHITE, this));
             appCardAdapter.notifyDataSetChanged();
             dia.hide();
         } else {
@@ -195,8 +195,7 @@ public class MainActivity extends AppCompatActivity  {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Log.i(getClass().getSimpleName(), "TESDTTT");
-//                            dialog.dismiss();
+
                         }
                     })
                     .create();
@@ -205,7 +204,6 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     public void onClickDeleteCard(final View v) {
-        Log.i(TAG, "pressed: " + v.getTag() + "\n\n");
         final String tag = v.getTag().toString().replace("_Del_Btn", "");
         final String nameTag = tag + "_Name";
         final String iconTag = tag + "_Icon";
@@ -228,7 +226,6 @@ public class MainActivity extends AppCompatActivity  {
                                 String deleteBtnTag = card.getAppName() + "_Del_Btn";
                                 String deleteBackGrdTag = card.getAppName() + "_Del_Backgrd";
                                 if (card.isSelected()) {
-                                    Log.i(TAG, "Deleting " + card.getAppName());
                                     appCardView.findViewWithTag(nameTag).setVisibility(View.VISIBLE);
                                     appCardView.findViewWithTag(iconTag).setVisibility(View.VISIBLE);
                                     appCardView.findViewWithTag(card.getAppName()).setVisibility(View.VISIBLE);
@@ -281,7 +278,6 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     public void onClickColorButton(View v) {
-        Log.i(TAG, "View id: " + v.getTag());
         selectedCard = cards.getByName(v.getTag().toString());
         colorAlertDialog.show();
     }
@@ -307,7 +303,6 @@ public class MainActivity extends AppCompatActivity  {
             }
         } else {
             for (PackageInfo appInfo : applications) {
-//                Log.i(TAG, "Package name: " + appInfo.packageName + " " + appInfo.applicationInfo.loadLabel(getPackageManager()).toString());
                 if (((appInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1)
                         || (appInfo.applicationInfo.loadLabel(getPackageManager()).toString().equals("Gmail"))
                         || (appInfo.applicationInfo.loadLabel(getPackageManager()).toString().equals("YouTube"))
@@ -407,8 +402,6 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        prefs.setBool(Prefs.KEYS.INITIALIZED.toString(), false);
-
         if (prefs.initialized) {
             dia.dismiss();
             Data.writeToFile();
@@ -417,7 +410,6 @@ public class MainActivity extends AppCompatActivity  {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        Log.i(TAG, "onSaveInstanceState");
         if (prefs.initialized) {
             dia.dismiss();
             Data.writeToFile();

@@ -8,7 +8,6 @@ import android.util.Log;
 
 import java.io.File;
 
-import mjaruijs.edge_notification.data.Data;
 import mjaruijs.edge_notification.data.IconMap;
 import mjaruijs.edge_notification.preferences.Prefs;
 
@@ -31,7 +30,7 @@ public class MainService extends Service {
         File file = Environment.getExternalStorageDirectory();
 
         IconMap iconMap = new IconMap();
-        Data.initialize(file, iconMap);
+//        Data.initialize(file, iconMap);
 
         prefs = new Prefs(getApplicationContext());
         prefs.apply();
