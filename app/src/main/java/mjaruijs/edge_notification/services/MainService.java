@@ -8,7 +8,7 @@ import android.util.Log;
 
 import java.io.File;
 
-import mjaruijs.edge_notification.data.CardList;
+import mjaruijs.edge_notification.data.Data;
 import mjaruijs.edge_notification.data.IconMap;
 import mjaruijs.edge_notification.preferences.Prefs;
 
@@ -26,14 +26,17 @@ public class MainService extends Service {
         super.onCreate();
         Intent notificationListener = new Intent(getApplicationContext(), NotificationListener.class);
         Intent edgeLightingService = new Intent(getApplicationContext(), EdgeLightingService.class);
+        Intent tileService = new Intent(this, MTileService.class);
+
         File file = Environment.getExternalStorageDirectory();
-        CardList.initialize(file);
+
         IconMap iconMap = new IconMap();
-        CardList.readFromXML(iconMap);
+        Data.initialize(file, iconMap);
 
         prefs = new Prefs(getApplicationContext());
         prefs.apply();
         Log.i(getClass().getSimpleName(), "CREATED");
+        startService(tileService);
         if (prefs.enabled) {
             Log.i("STARTERSERVICE", "Prefs enabled");
             startService(notificationListener);
@@ -42,6 +45,7 @@ public class MainService extends Service {
             stopService(notificationListener);
             stopService(edgeLightingService);
         }
+
     }
 
     @Override

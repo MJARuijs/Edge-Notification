@@ -1,6 +1,5 @@
 package mjaruijs.edge_notification.services;
 
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,12 +19,13 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.util.List;
 
 import mjaruijs.edge_notification.EdgeLightView;
-import mjaruijs.edge_notification.data.AppCard;
-import mjaruijs.edge_notification.data.CardList;
+import mjaruijs.edge_notification.data.cards.AppCard;
+import mjaruijs.edge_notification.data.cards.AppCardList;
 import mjaruijs.edge_notification.preferences.Prefs;
 import mjaruijs.edge_notification.values.Variables;
 
@@ -36,17 +36,17 @@ public class EdgeLightingService extends Service implements SensorEventListener 
     private EdgeReceiver edgeReceiver = new EdgeReceiver(this);
     private WindowManager wm;
     private Variables vars;
+    private AppCardList AppCardList;
     private List<AppCard> cards;
     private Display display;
     private Prefs prefs;
     private SensorManager sensorManager;
     private Intent notificationListener;
-    private static final int SENSOR_SENSITIVITY = 4;
+    private static final int SENSOR_SENSITIVITY = 1;
     private boolean initialized = false;
     private boolean proximityClose;
     private boolean gyroscopeFlat;
     private boolean awaitingStopSign;
-    private float[] mGravity;
     private double mAccel;
     private double mAccelCurrent;
     private double mAccelLast;
@@ -71,7 +71,7 @@ public class EdgeLightingService extends Service implements SensorEventListener 
     public void removeViewFromWM() {
         try {
             if (edgeView != null) {
-                this.wm.removeViewImmediate(edgeView);
+                wm.removeViewImmediate(edgeView);
                 edgeView.close();
                 edgeView = null;
             }
@@ -81,17 +81,18 @@ public class EdgeLightingService extends Service implements SensorEventListener 
         }
     }
 
-
     public void addViewToWM(String name) {
-        if (this.edgeView == null || this.edgeView.getVisibility() != View.VISIBLE) {
+        if (edgeView == null || edgeView.getVisibility() != View.VISIBLE) {
             try {
                 if (edgeView != null) {
-                    this.wm.removeViewImmediate(edgeView);
+                    wm.removeViewImmediate(edgeView);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
             boolean screenOff = false;
+
             if (display.getState() == 1 && gyroscopeFlat) {
                 screenOff = true;
                 PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -102,23 +103,24 @@ public class EdgeLightingService extends Service implements SensorEventListener 
                         | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
 
                 wakeLock.acquire();
-                Log.i(getClass().getSimpleName(), "WAKELOCK");
                 wakeLock.release();
             }
 
             int height = 0;
             int width = 0;
-            this.edgeView = vars.initView(screenOff);
+            edgeView = vars.initView(screenOff);
 
             int mainColor = setMainColor(name);
             int secondColor = setSecondColor(name);
-            Log.i(getClass().getSimpleName(), "COLORS: " + mainColor + " : " + secondColor);
-            this.vars.m15255a(mainColor, secondColor);
-            this.vars.m15252a(15f);
-            this.vars.m15256b(100);
-            Display defaultDisplay = this.wm.getDefaultDisplay();
+
+            vars.setGradientColors(mainColor, secondColor);
+            vars.setStrokeWidth(15f);
+            vars.setCornerRadius(100f);
+
+            Display defaultDisplay = wm.getDefaultDisplay();
             DisplayMetrics displayMetrics;
             ImageView view = new ImageView(getApplicationContext());
+
             if (hasNavBar(getApplicationContext())) {
                 displayMetrics = new DisplayMetrics();
                 defaultDisplay.getRealMetrics(displayMetrics);
@@ -127,21 +129,22 @@ public class EdgeLightingService extends Service implements SensorEventListener 
                 view.setMinimumWidth(width);
                 view.setMinimumHeight(height);
             }
+
             view.setBackgroundColor(Color.BLACK);
-            Log.i(getClass().getSimpleName(), "ADDING VIEW TO VM");
+
             if (proximityClose) {
                 awaitingStopSign = true;
                 edgeView.setBackgroundColor(Color.BLACK);
             }
 
-            this.wm.addView(this.edgeView, layoutParams(width, height));
+            wm.addView(edgeView, layoutParams(width, height));
         }
     }
 
     private int setMainColor(String name) {
         AppCard selectedCard = getSelectedCard(name);
         if (selectedCard != null) {
-            return selectedCard.getMainColor();
+            return selectedCard.getColor();
         } else {
             return Color.BLACK;
         }
@@ -158,11 +161,14 @@ public class EdgeLightingService extends Service implements SensorEventListener 
 
     @Nullable
     private AppCard getSelectedCard(String appName) {
+        Log.i(getClass().getSimpleName(), "NAME" + appName);
         for (AppCard card : cards) {
+            Log.i(getClass().getSimpleName(), "APP " + card.getAppName());
             if (card.getAppName().trim().toLowerCase().equals(appName.toLowerCase().trim())) {
                 return card;
             }
-        } return null;
+        }
+        return null;
     }
 
     private void addReceiverActions() {
@@ -185,7 +191,7 @@ public class EdgeLightingService extends Service implements SensorEventListener 
         prefs.apply();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         display = wm.getDefaultDisplay();
-        cards = CardList.getCards();
+        cards = AppCardList.getCards();
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         notificationListener = new Intent(this, NotificationListener.class);
         mAccel = 0.00f;
@@ -195,6 +201,7 @@ public class EdgeLightingService extends Service implements SensorEventListener 
             startService(notificationListener);
             sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM);
             sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_STATUS_ACCURACY_HIGH);
+            sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT), SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM);
         }
         initialized = true;
         Log.i(getClass().getSimpleName(), "SERVICE CREATED");
@@ -208,11 +215,11 @@ public class EdgeLightingService extends Service implements SensorEventListener 
             stopService(notificationListener);
         }
         try {
-            if (this.edgeView != null) {
-                this.edgeView.close();
-                this.wm.removeViewImmediate(edgeView);
+            if (edgeView != null) {
+                edgeView.close();
+                wm.removeViewImmediate(edgeView);
             }
-            this.wm = null;
+            wm = null;
             super.onDestroy();
         } catch (Exception e) {
             e.printStackTrace();
@@ -234,8 +241,8 @@ public class EdgeLightingService extends Service implements SensorEventListener 
     @Override
     public int onStartCommand(Intent intent, int i, int i2) {
         if (prefs.enabled) {
-            this.wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-            this.vars = new Variables(this);
+            wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+            vars = new Variables(this);
             addReceiverActions();
             super.onStartCommand(intent, i, i2);
         }
@@ -247,10 +254,10 @@ public class EdgeLightingService extends Service implements SensorEventListener 
         if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
             if (event.values[0] >= -SENSOR_SENSITIVITY && event.values[0] <= SENSOR_SENSITIVITY) {
                 proximityClose = true;
-                Log.i(getClass().getSimpleName(), "Close");
+//                Log.i(getClass().getSimpleName(), "Close");
             } else {
                 proximityClose = false;
-                Log.i(getClass().getSimpleName(), "Far");
+//                Log.i(getClass().getSimpleName(), "Far");
                 if (awaitingStopSign) {
                     awaitingStopSign = false;
                     removeViewFromWM();
@@ -259,7 +266,7 @@ public class EdgeLightingService extends Service implements SensorEventListener 
         }
 
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
-            mGravity = event.values.clone();
+            float[] mGravity = event.values.clone();
             // Shake detection
             float x = mGravity[0];
             float y = mGravity[1];
@@ -272,7 +279,28 @@ public class EdgeLightingService extends Service implements SensorEventListener 
             // motion you want to detect
             gyroscopeFlat = mAccel < 0.1;
         }
+        if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+//            Log.i(getClass().getSimpleName(), "Value: " + event.values[0]);
+        }
 
+    }
+
+    private boolean isBlacklisted(String appName, String ticker) {
+        Log.i(getClass().getSimpleName(), "CHECKING " + ticker);
+        AppCard card = getSelectedCard(appName);
+        if (card != null) {
+//            Log.i(getClass().getSimpleName(), "SIZE " + card.getBlackList().size());
+//            for (String str : card.getBlackList()) {
+//                Log.i(getClass().getSimpleName(), "String: " + str);
+//                if (ticker.contains(str)) {
+//                    return true;
+//                }
+//            }
+//            return card.getBlackList().contains(ticker);
+        } else {
+            Log.i(getClass().getSimpleName(), "NULL");
+        }
+        return false;
     }
 
     @Override
@@ -301,14 +329,15 @@ public class EdgeLightingService extends Service implements SensorEventListener 
 
                     long parseLong = Long.parseLong(intent.getExtras().get("notify_posted_time").toString());
 
-                        if (!(action.equals("") && parseLong == 0) && !ticker.equals("WhatsApp Web")) {
+                        if (!(action.equals("") && parseLong == 0) && !isBlacklisted(name, ticker)) {
                             Log.i(getClass().getSimpleName(), "ADDING TO VIEW ");
-                            this.edgeService.addViewToWM(name);
+
+                            edgeService.addViewToWM(name);
                         }
 
                 }
                 if (intent.getStringExtra("notification_event").equals("removed")) {
-                    this.edgeService.removeViewFromWM();
+                    edgeService.removeViewFromWM();
                 }
             }
         }

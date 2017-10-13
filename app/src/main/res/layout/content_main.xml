@@ -6,10 +6,9 @@
     android:theme="@style/Device_Settings_Dark"
 
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
 
-    tools:context=".activities.MainActivity"
-    >
+    tools:context=".activities.MainActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycle_view"

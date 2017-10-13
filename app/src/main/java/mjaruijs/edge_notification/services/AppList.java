@@ -26,6 +26,10 @@ public class AppList implements ListAdapter {
         apps = new ArrayList<>();
     }
 
+    public AppList() {
+        apps = new ArrayList<>();
+    }
+
     public void add(AppItem app) {
         apps.add(app);
     }

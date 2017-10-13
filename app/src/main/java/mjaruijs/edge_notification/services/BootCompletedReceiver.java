@@ -12,6 +12,8 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         Toast toast = Toast.makeText(context, "LOL", Toast.LENGTH_SHORT);
         toast.show();
         Intent mainServiceIntent = new Intent(context, MainService.class);
+        Intent tileService = new Intent(context, MTileService.class);
+        context.startService(tileService);
         context.startService(mainServiceIntent);
     }
 }

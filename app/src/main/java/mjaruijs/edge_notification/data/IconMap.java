@@ -1,6 +1,7 @@
 package mjaruijs.edge_notification.data;
 
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import java.util.HashMap;
 
@@ -13,6 +14,7 @@ public class IconMap {
     }
 
     public void add(String appName, Drawable icon) {
+        Log.i(getClass().getSimpleName(), "Adding " +appName);
         appMap.put(appName, icon);
     }
 
@@ -20,7 +22,7 @@ public class IconMap {
 //        return appMap.containsKey(appName);
 //    }
 
-    Drawable getValue(String appName) {
+    public Drawable getValue(String appName) {
         return appMap.get(appName);
     }
 }

@@ -13,18 +13,22 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -33,35 +37,69 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mjaruijs.edge_notification.R;
+import mjaruijs.edge_notification.adapters.BlacklistAdapter;
+import mjaruijs.edge_notification.adapters.CardAdapter;
 import mjaruijs.edge_notification.color_picker.ColorPickerPalette;
 import mjaruijs.edge_notification.color_picker.ColorPickerSwatch;
-import mjaruijs.edge_notification.data.AppCard;
 import mjaruijs.edge_notification.data.AppItem;
-import mjaruijs.edge_notification.data.CardList;
+import mjaruijs.edge_notification.data.Data;
 import mjaruijs.edge_notification.data.IconMap;
 import mjaruijs.edge_notification.data.PInfo;
+import mjaruijs.edge_notification.data.cards.AppCard;
+import mjaruijs.edge_notification.data.cards.AppCardList;
+import mjaruijs.edge_notification.data.cards.BlackCard;
+import mjaruijs.edge_notification.data.cards.Blacklist;
+import mjaruijs.edge_notification.data.cards.Card;
+import mjaruijs.edge_notification.data.cards.CardList;
 import mjaruijs.edge_notification.fragments.SettingsFragment;
 import mjaruijs.edge_notification.preferences.Prefs;
 import mjaruijs.edge_notification.services.AppList;
 import mjaruijs.edge_notification.services.MainService;
-import mjaruijs.edge_notification.services.RVAdapter;
 
 public class MainActivity extends AppCompatActivity  {
 
     private AlertDialog colorAlertDialog;
-    private RVAdapter   appCardAdapter;
+    private CardAdapter appCardAdapter;
+    private BlacklistAdapter blacklistAdapter;
     private IconMap     iconMap;
-    private CardList    cards;
+    private AppCardList cards;
+    private Blacklist blacklistCards;
     private String      TAG = getClass().getSimpleName();
     private Dialog      dia;
     public  String[]    strings;
     public  Drawable[]  icons;
     private int[]       colors;
-    private AppCard     selectedCard;
+    private Card selectedCard;
+    private static String adapter;
 
     private RecyclerView appCardView;
     private Prefs prefs;
     //public static final int SCREEN_BRIGHT_WAKE_LOCK = 0x0000000a;
+
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    appCardView.setAdapter(appCardAdapter);
+                    adapter = "cards";
+//                    mTextMessage.setText(R.string.title_home);
+                    return true;
+                case R.id.navigation_dashboard:
+                    appCardView.setAdapter(blacklistAdapter);
+                    adapter = "blacklist";
+//                    mTextMessage.setText(R.string.title_dashboard);
+                    return true;
+                case R.id.navigation_notifications:
+//                    mTextMessage.setText(R.string.title_notifications);
+                    return true;
+            }
+            return false;
+        }
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +108,7 @@ public class MainActivity extends AppCompatActivity  {
 //        Intent edgeLightingService = new Intent(getApplicationContext(), EdgeLightingService.class);
 
         iconMap = new IconMap();
-
+        adapter = "cards";
         // Preferences
         prefs = new Prefs(getApplicationContext());
         prefs.apply();
@@ -99,7 +137,6 @@ public class MainActivity extends AppCompatActivity  {
             final LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
 
             appCardView.setLayoutManager(llm);
-            File file = Environment.getExternalStorageDirectory();
 
             // Get a list of installed apps.
             ArrayList<PInfo> applicationPackages = new ArrayList<>();
@@ -108,13 +145,14 @@ public class MainActivity extends AppCompatActivity  {
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
+            File file = Environment.getExternalStorageDirectory();
+            Data.initialize(file, iconMap);
 
-            CardList.initialize(file);
-            cards = CardList.readFromXML(iconMap);
-            appCardAdapter = new RVAdapter(cards);
+            cards = Data.getCards();
+            blacklistCards = Data.getBlacklist();
 
-//        Toast toast = Toast.makeText(getApplicationContext(), CardList.filePath(), Toast.LENGTH_SHORT);
-//        toast.show();
+            appCardAdapter = new CardAdapter(cards);
+            blacklistAdapter = new BlacklistAdapter(blacklistCards);
 
             AppList apps = new AppList(MainActivity.this);
             appCardView.setAdapter(appCardAdapter);
@@ -145,6 +183,28 @@ public class MainActivity extends AppCompatActivity  {
             dia = builder.create();
             dia.setCancelable(true);
 
+            final AlertDialog.Builder textBuilder = new AlertDialog.Builder(this);
+            final EditText input = new EditText(this);
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+            final AlertDialog textDialog;
+
+            textBuilder.setView(input)
+                    .setTitle("Enter name")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+//                            test(input.getText().toString());
+//                            Log.i(getClass().getSimpleName(), "Input: " + input.getText().toString());
+//                            cards.getByName(selectedCard.getAppName()).blackListItem(input.getText().toString());
+//                            Log.i(getClass().getSimpleName(), "UPDATED");
+//                            appCardAdapter.notifyDataSetChanged();
+//                            dialog.dismiss();
+                        }
+                    });
+
+            textDialog = textBuilder.create();
+
             // Color Picker
             LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
             ColorPickerPalette colorPickerPalette = (ColorPickerPalette) layoutInflater.inflate(R.layout.custom_picker, null);
@@ -152,7 +212,7 @@ public class MainActivity extends AppCompatActivity  {
                 @Override
                 public void onColorSelected(int color) {
                     Log.i(TAG, "Selected color: " + color);
-                    cards.getByName(selectedCard.getAppName()).setMainColor(color);
+                    ((AppCard)cards.getByName(selectedCard.getAppName())).setColor(color);
                     int[][] states = new int[][]{new int[0]};
                     int[] colors = {color};
                     ColorStateList colorList = new ColorStateList(states, colors);
@@ -176,28 +236,48 @@ public class MainActivity extends AppCompatActivity  {
                     dia.show();
                 }
             });
+
+            BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+            navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
         }
     }
 
+//    public void test(String text) {
+//        Log.i(getClass().getSimpleName(), "Input: " + text + " " + cards.getSelectedCards().size());
+////                            cards.getSelectedCards().get(0).blackListItem(text);
+//                            Log.i(getClass().getSimpleName(), "UPDATED " + cards.getSelectedCards().get(0).getAppName());
+//                            appCardAdapter.notifyDataSetChanged();
+//    }
+
     public void onClick(View v){
+        Log.i(getClass().getSimpleName(), "CLICKED");
         TextView textView = (TextView) v.findViewById(R.id.app_text);
         ImageView icon = (ImageView) v.findViewById(R.id.app_icon);
         if (!cards.contains(textView.getText().toString())) {
-            cards.addCard(new AppCard(textView.getText().toString(),
-                    icon.getDrawable(),
-                    Color.WHITE, Color.BLACK));
+
+            String appName = textView.getText().toString();
+            if (adapter.equals("cards")) {
+                cards.addCard(new AppCard(appName,
+                        icon.getDrawable(),
+                        Color.WHITE));
+                appCardAdapter.notifyDataSetChanged();
+            } else {
+                blacklistCards.addCard(new BlackCard(appName, icon.getDrawable(), "WhatsApp"));
+                blacklistAdapter.notifyDataSetChanged();
+            }
             dia.hide();
-            appCardAdapter.notifyDataSetChanged();
         } else {
-            final AlertDialog warningDialog;
+            final Dialog warningDialog;
             warningDialog = new AlertDialog.Builder(this, R.style.MyDialogTheme)
                     .setTitle("Duplication!")
                     .setMessage("This app is already in your list!")
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    .setPositiveButton("Ok", new Dialog.OnClickListener() {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
+                            Log.i(getClass().getSimpleName(), "TESDTTT");
+//                            dialog.dismiss();
                         }
                     })
                     .create();
@@ -213,7 +293,7 @@ public class MainActivity extends AppCompatActivity  {
         final String deleteBtnTag = tag + "_Del_Btn";
         final String deleteBackGrdTag = tag + "_Del_Backgrd";
         if (CardList.multipleSelected()) {
-            final List<AppCard> selectedCards = cards.getSelectedCards();
+            final List<Card> selectedCards = cards.getSelectedCards();
             final AlertDialog warningDialog;
             warningDialog = new AlertDialog.Builder(this, R.style.MyDialogTheme)
                     .setTitle("Multiple Items Selected!")
@@ -222,7 +302,7 @@ public class MainActivity extends AppCompatActivity  {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            for (AppCard card : selectedCards) {
+                            for (Card card : selectedCards) {
                                 String nameTag = card.getAppName() + "_Name";
                                 String iconTag = card.getAppName() + "_Icon";
                                 String deleteBtnTag = card.getAppName() + "_Del_Btn";
@@ -245,7 +325,7 @@ public class MainActivity extends AppCompatActivity  {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Log.i(TAG, "Deleting " + tag);
-                            for (AppCard card : selectedCards) {
+                            for (Card card : selectedCards) {
                                 String nameTag = card.getAppName() + "_Name";
                                 String iconTag = card.getAppName() + "_Icon";
                                 String deleteBtnTag = card.getAppName() + "_Del_Btn";
@@ -286,7 +366,6 @@ public class MainActivity extends AppCompatActivity  {
         colorAlertDialog.show();
     }
 
-
     // TODO: Add a checkbox that allows the user to add system apps too.
     private ArrayList<PInfo> getInstalledApps(boolean getSysPackages) throws PackageManager.NameNotFoundException {
         ArrayList<PInfo> res = new ArrayList<>();
@@ -300,8 +379,6 @@ public class MainActivity extends AppCompatActivity  {
 
         if (getSysPackages) {
             for (PackageInfo appInfo : applications) {
-//                Log.i(TAG, "Package name: " + appInfo.packageName + " " + appInfo.applicationInfo.loadLabel(getPackageManager()).toString());
-
                     PInfo newInfo = new PInfo();
                     newInfo.appName = appInfo.applicationInfo.loadLabel(getPackageManager()).toString();
                     newInfo.icon = appInfo.applicationInfo.loadIcon(getPackageManager());
@@ -314,7 +391,9 @@ public class MainActivity extends AppCompatActivity  {
                 if (((appInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1)
                         || (appInfo.applicationInfo.loadLabel(getPackageManager()).toString().equals("Gmail"))
                         || (appInfo.applicationInfo.loadLabel(getPackageManager()).toString().equals("YouTube"))
-                        || (appInfo.packageName.contains("facebook")) && !appInfo.applicationInfo.loadLabel(getPackageManager()).toString().contains("App")) {
+                        || (appInfo.packageName.contains("facebook")) && !appInfo.applicationInfo.loadLabel(getPackageManager()).toString().contains("App")
+                        || (appInfo.applicationInfo.loadLabel(getPackageManager()).toString().contains("Messenger")))
+                {
                     PInfo newInfo = new PInfo();
                     newInfo.appName = appInfo.applicationInfo.loadLabel(getPackageManager()).toString();
                     newInfo.icon = appInfo.applicationInfo.loadIcon(getPackageManager());
@@ -391,13 +470,26 @@ public class MainActivity extends AppCompatActivity  {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        cards.clear();
+                        clearCards();
+
                         dialog.dismiss();
                         appCardAdapter.notifyDataSetChanged();
+                        blacklistAdapter.notifyDataSetChanged();
                     }
                 })
                 .create();
         warningDialog.show();
+    }
+
+    private static void clearCards() {
+        switch (adapter) {
+            case "cards":
+                AppCardList.clear();
+                break;
+            case "blacklist":
+                Data.getBlacklist().clear();
+                break;
+        }
     }
 
     @Override
@@ -412,7 +504,7 @@ public class MainActivity extends AppCompatActivity  {
 
         if (prefs.initialized) {
             dia.dismiss();
-            cards.writeToFile();
+                Data.writeToFile();
         }
     }
 
@@ -421,7 +513,7 @@ public class MainActivity extends AppCompatActivity  {
         Log.i(TAG, "onSaveInstanceState");
         if (prefs.initialized) {
             dia.dismiss();
-            cards.writeToFile();
+        Data.writeToFile();
         }
         super.onSaveInstanceState(outState);
     }

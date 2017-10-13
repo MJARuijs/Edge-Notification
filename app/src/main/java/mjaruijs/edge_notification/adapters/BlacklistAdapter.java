@@ -1,8 +1,8 @@
-package mjaruijs.edge_notification.services;
+package mjaruijs.edge_notification.adapters;
 
-import android.content.res.ColorStateList;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,38 +11,33 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import mjaruijs.edge_notification.R;
-import mjaruijs.edge_notification.data.CardList;
+import mjaruijs.edge_notification.data.cards.CardList;
 
-public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
+public class BlacklistAdapter extends RecyclerView.Adapter<BlacklistAdapter.BlacklistHolder> {
 
     private CardList cards;
 
-    public RVAdapter(CardList cards){
+    public BlacklistAdapter(CardList cards) {
         this.cards = cards;
     }
 
     @Override
-    public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BlacklistHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view, parent, false);
-        return new CardViewHolder(v);
+        return new BlacklistHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(final CardViewHolder holder, int position) {
+    public void onBindViewHolder(final BlacklistHolder holder, int position) {
+        Log.i(getClass().getSimpleName(), "ADDING BLACK");
         final String tag = cards.get(position).getAppName();
         String nameTag = tag + "_Name";
         String iconTag = tag + "_Icon";
         String deleteBtnTag = tag + "_Del_Btn";
         String deleteBackGrdTag = tag + "_Del_Backgrd";
 
-
         holder.appName.setText(cards.get(position).getAppName());
         holder.appIcon.setImageDrawable(cards.get(position).getAppIcon());
-        holder.appNotificationColor.setTag(cards.get(position).getAppName());
-        int[][] states = new int[][] { new int[0]};
-        int[] colors = { cards.get(position).getMainColor() };
-        ColorStateList colorList = new ColorStateList(states, colors);
-        holder.appNotificationColor.setBackgroundTintList(colorList);
         holder.deleteButton.setTag(cards.get(position).getAppName());
         holder.appName.setTag(nameTag);
         holder.appIcon.setTag(iconTag);
@@ -56,7 +51,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
                 cards.getByName(tag).setSelected(true);
                 holder.deleteBackground.setVisibility(View.VISIBLE);
                 holder.deleteButton.setVisibility(View.VISIBLE);
-                holder.appNotificationColor.setVisibility(View.INVISIBLE);
                 holder.appName.setVisibility(View.INVISIBLE);
                 return true;
             }
@@ -68,27 +62,21 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
         return cards.size();
     }
 
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-    }
+    static class BlacklistHolder extends RecyclerView.ViewHolder {
 
-    static class CardViewHolder extends RecyclerView.ViewHolder {
         CardView cv;
         Button deleteButton;
         ImageView deleteBackground;
         TextView appName;
         ImageView appIcon;
-        Button appNotificationColor;
 
-        CardViewHolder(View itemView) {
+        BlacklistHolder(View itemView) {
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.card_view);
             deleteButton = (Button) itemView.findViewById(R.id.delete_button);
             deleteBackground = (ImageView) itemView.findViewById(R.id.delete_background);
             appName = (TextView) itemView.findViewById(R.id.app_name);
             appIcon = (ImageView) itemView.findViewById(R.id.app_icon);
-            appNotificationColor = (Button) itemView.findViewById(R.id.app_notification_color);
         }
     }
 }
