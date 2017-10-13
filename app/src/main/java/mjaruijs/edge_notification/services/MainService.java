@@ -31,7 +31,7 @@ public class MainService extends Service {
         File file = Environment.getExternalStorageDirectory();
 
         IconMap iconMap = new IconMap();
-        Data.initialize(file, iconMap, getApplicationContext());
+        Data.initialize(file, iconMap);
 
         prefs = new Prefs(getApplicationContext());
         prefs.apply();

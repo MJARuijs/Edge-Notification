@@ -3,6 +3,7 @@ package mjaruijs.edge_notification.adapters;
 import android.content.res.ColorStateList;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,8 +31,9 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
 
     @Override
     public void onBindViewHolder(final CardViewHolder holder, final int position) {
-        final AppCard card = cards.get(position);
+        AppCard card = cards.get(position);
 
+        Log.i(getClass().getSimpleName(), "added " + card.getAppName());
         final String tag = cards.get(position).getAppName();
         String nameTag = tag + "_Name";
         String iconTag = tag + "_Icon";
@@ -69,7 +71,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
         holder.blacklistButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                card.showBlacklist();
+//                card.showBlacklist();
             }
         });
 

@@ -34,15 +34,18 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
     public Variables vars;
 //    private static final int SENSOR_SENSITIVITY = 4;
     private boolean screenOff;
+    private Context context;
 
     public EdgeLightView(Context context) {
         super(context);
+        this.context = context;
     }
 
     public EdgeLightView(Context context, Variables vars, boolean screenOff) {
         super(context);
         this.vars = vars;
         this.screenOff = screenOff;
+        this.context = context;
         valueAnimator = ValueAnimator.ofFloat(0.0f, 360.0f);
         valueAnimator.setDuration(3000);
         valueAnimator.setRepeatMode(ValueAnimator.RESTART);
@@ -152,6 +155,8 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
 
             if (screenOff) {
                 drawBackground(backgroundCanvas);
+
+                setKeepScreenOn(true);
             }
 
             drawEdgeCorners(mainColorCanvas, paint, vars.strokeWidth, vars.cornerRadius);
@@ -271,19 +276,4 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
         }
     }
 
-//    @Override
-//    public void onSensorChanged(SensorEvent event) {
-//        if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-//            if (event.values[0] >= -SENSOR_SENSITIVITY && event.values[0] <= SENSOR_SENSITIVITY) {
-//                proximityClose = true;
-//            } else {
-//                proximityClose = false;
-//            }
-//        }
-//    }
-
-//    @Override
-//    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-//
-//    }
 }

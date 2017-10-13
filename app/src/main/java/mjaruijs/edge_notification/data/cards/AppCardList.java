@@ -1,6 +1,5 @@
 package mjaruijs.edge_notification.data.cards;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
@@ -14,13 +13,13 @@ import mjaruijs.edge_notification.data.IconMap;
 
 public class AppCardList extends CardList {
 
-    private static Context context;
+//    private static Context context;
     private static List<AppCard> appCardList;
     private static File file;
     private static final String TAG = "AppCardList";
 
-    public static void initialize(File appFile, Context contxt) {
-        context = contxt;
+    public static void initialize(File appFile) {
+//        context = contxt;
         file = appFile;
         appCardList = new ArrayList<>();
     }
@@ -83,7 +82,7 @@ public class AppCardList extends CardList {
     }
 
     public AppCard getByName(String appName) {
-
+        super.getByName(appName);
         for (AppCard card : appCardList) {
 
             if (card.getAppName().equals(appName)) {
@@ -121,7 +120,7 @@ public class AppCardList extends CardList {
                     } else if (line.contains("<blacklist>")) {
                         blacklist = Blacklist.readFromXML(sc);
                     } else if (line.contains("</app-card>")) {
-                        list.addCard(new AppCard(appName, icon, color, blacklist, context));
+                        list.addCard(new AppCard(appName, icon, color, blacklist));
                     }
 
                 } while(!line.contains("</app-list>") && sc.hasNextLine());
@@ -144,7 +143,7 @@ public class AppCardList extends CardList {
                 fileContent += "\n\t\t<app-card>"
                         + "\n\t\t\t<name>" + card.getAppName() + "</name>"
                         + "\n\t\t\t<color>" + card.getColor() + "</color>"
-                        + "\n\t\t\t<blacklist>" + card.getBlacklist().toString() + "\n\t\t\t</blacklist>"
+//                        + "\n\t\t\t<blacklist>" + card.getBlacklist().toString() + "\n\t\t\t</blacklist>"
                         + "\n\t\t</app-card>";
 
             }

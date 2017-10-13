@@ -19,7 +19,6 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -41,6 +40,7 @@ public class EdgeLightingService extends Service implements SensorEventListener 
     private Display display;
     private Prefs prefs;
     private SensorManager sensorManager;
+    private PowerManager.WakeLock wakeLock;
     private Intent notificationListener;
     private static final int SENSOR_SENSITIVITY = 1;
     private boolean initialized = false;
@@ -71,6 +71,7 @@ public class EdgeLightingService extends Service implements SensorEventListener 
     public void removeViewFromWM() {
         try {
             if (edgeView != null) {
+
                 wm.removeViewImmediate(edgeView);
                 edgeView.close();
                 edgeView = null;
@@ -97,13 +98,14 @@ public class EdgeLightingService extends Service implements SensorEventListener 
                 screenOff = true;
                 PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
-                PowerManager.WakeLock wakeLock = pm.newWakeLock(FULL_WAKE_LOCK
+                 wakeLock = pm.newWakeLock(FULL_WAKE_LOCK
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                         | PowerManager.ACQUIRE_CAUSES_WAKEUP
-                        | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
+                        | PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "MyWakeLock");
 
                 wakeLock.acquire();
-                wakeLock.release();
+//                wakeLock.release();
+
             }
 
             int height = 0;
@@ -132,11 +134,22 @@ public class EdgeLightingService extends Service implements SensorEventListener 
 
             view.setBackgroundColor(Color.BLACK);
 
-            if (proximityClose) {
+            if (screenOff) {
                 awaitingStopSign = true;
                 edgeView.setBackgroundColor(Color.BLACK);
-            }
 
+            }
+//            edgeView.setOnTouchListener(new View.OnTouchListener() {
+//                @Override
+//                public boolean onTouch(View v, MotionEvent event) {
+////                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//                    Log.i(getClass().getSimpleName(), "click");
+//
+//                    wm.removeViewImmediate(edgeView);
+////                    }
+//                    return true;
+//                }
+//            });
             wm.addView(edgeView, layoutParams(width, height));
         }
     }
@@ -153,7 +166,7 @@ public class EdgeLightingService extends Service implements SensorEventListener 
     private int setSecondColor(String name) {
         AppCard selectedCard = getSelectedCard(name);
         if (selectedCard != null) {
-            return Color.YELLOW;
+            return Color.BLACK;
         } else {
             return Color.BLACK;
         }

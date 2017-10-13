@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity  {
                 e.printStackTrace();
             }
             File file = Environment.getExternalStorageDirectory();
-            Data.initialize(file, iconMap, this);
+            Data.initialize(file, iconMap);
 
             cards = Data.getCards();
 
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity  {
                     dia.show();
                 }
             });
-
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
 
@@ -183,7 +184,7 @@ public class MainActivity extends AppCompatActivity  {
         if (!cards.contains(textView.getText().toString())) {
 
             String appName = textView.getText().toString();
-            cards.addCard(new AppCard(appName, icon.getDrawable(), Color.WHITE, this));
+            cards.addCard(new AppCard(appName, icon.getDrawable(), Color.WHITE));
             appCardAdapter.notifyDataSetChanged();
             dia.hide();
         } else {
