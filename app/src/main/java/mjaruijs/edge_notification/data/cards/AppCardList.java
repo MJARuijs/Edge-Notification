@@ -20,7 +20,7 @@ public class AppCardList extends CardList {
     private static final String TAG = "AppCardList";
 
     public static void initialize(File appFile, Context contxt) {
-        contxt = contxt;
+        context = contxt;
         file = appFile;
         appCardList = new ArrayList<>();
     }
@@ -76,6 +76,10 @@ public class AppCardList extends CardList {
 
         }
         return selectedCards;
+    }
+
+    public AppCard get(int i) {
+        return appCardList.get(i);
     }
 
     public AppCard getByName(String appName) {

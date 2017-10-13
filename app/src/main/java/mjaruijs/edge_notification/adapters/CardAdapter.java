@@ -13,7 +13,6 @@ import android.widget.TextView;
 import mjaruijs.edge_notification.R;
 import mjaruijs.edge_notification.data.cards.AppCard;
 import mjaruijs.edge_notification.data.cards.AppCardList;
-import mjaruijs.edge_notification.data.cards.Card;
 
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder> {
 
@@ -31,7 +30,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
 
     @Override
     public void onBindViewHolder(final CardViewHolder holder, final int position) {
-        Card card = cards.get(position);
+        final AppCard card = cards.get(position);
 
         final String tag = cards.get(position).getAppName();
         String nameTag = tag + "_Name";
@@ -43,12 +42,10 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
         holder.appIcon.setImageDrawable(card.getAppIcon());
         holder.appNotificationColor.setTag(card.getAppName());
 
-        if (card instanceof AppCard) {
-            int[][] states = new int[][] { new int[0] };
-            int[] colors = { ((AppCard) card).getColor()};
-            ColorStateList colorList = new ColorStateList(states, colors);
-            holder.appNotificationColor.setBackgroundTintList(colorList);
-        }
+        int[][] states = new int[][] { new int[0] };
+        int[] colors = { card.getColor() };
+        ColorStateList colorList = new ColorStateList(states, colors);
+        holder.appNotificationColor.setBackgroundTintList(colorList);
 
         holder.deleteButton.setTag(card.getAppName());
         holder.appName.setTag(nameTag);
@@ -69,7 +66,12 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
             }
         });
 
-
+        holder.blacklistButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                card.showBlacklist();
+            }
+        });
 
     }
 
