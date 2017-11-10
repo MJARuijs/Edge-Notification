@@ -4,7 +4,7 @@ public class BlackCard extends Card {
 
     private String item;
 
-    public BlackCard(String item) {
+    BlackCard(String item) {
         super(item, null);
         this.item = item;
     }

@@ -33,7 +33,7 @@
                 android:visibility="invisible"
                 card_view:layout_constraintLeft_toLeftOf="parent"
                 card_view:srcCompat="@color/red"
-                android:layout_marginLeft="0dp"
+                android:layout_marginStart="0dp"
                 card_view:layout_constraintTop_toTopOf="@+id/delete_button"
                 android:layout_marginTop="0dp" />
 
@@ -46,7 +46,6 @@
                 android:src="@mipmap/ic_launcher"
                 card_view:layout_constraintLeft_toLeftOf="parent"
                 card_view:layout_constraintTop_toTopOf="@+id/delete_button"
-                android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp" />
 
             <Button
@@ -60,7 +59,7 @@
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintRight_toRightOf="@+id/delete_background"
                 card_view:layout_constraintTop_toTopOf="@+id/delete_button"
-                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp" />
 
             <TextView
@@ -92,13 +91,13 @@
                 tools:layout_editor_absoluteX="142dp" />
 
             <Button
-                android:id="@+id/second_color_button"
+                android:id="@+id/subCards_button"
                 android:layout_width="150dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:onClick="onClickClear"
-                android:text="Subcards"
-                android:layout_marginLeft="8dp"
+                android:onClick="showSubCards"
+                android:text="SubCards"
+                android:layout_marginStart="8dp"
                 card_view:layout_constraintLeft_toLeftOf="parent"
                 card_view:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginBottom="8dp" />
@@ -110,7 +109,7 @@
                 android:layout_height="wrap_content"
                 android:onClick="showBlacklist"
                 android:text="@string/blacklist"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 card_view:layout_constraintRight_toRightOf="parent"
                 card_view:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginBottom="8dp" />

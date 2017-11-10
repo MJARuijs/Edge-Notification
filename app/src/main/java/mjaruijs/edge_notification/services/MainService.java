@@ -14,8 +14,6 @@ import mjaruijs.edge_notification.preferences.Prefs;
 
 public class MainService extends Service {
 
-    private Prefs prefs;
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -33,7 +31,7 @@ public class MainService extends Service {
         IconMap iconMap = new IconMap();
         Data.initialize(file, iconMap);
 
-        prefs = new Prefs(getApplicationContext());
+        Prefs prefs = new Prefs(getApplicationContext());
         prefs.apply();
         Log.i(getClass().getSimpleName(), "CREATED");
         startService(tileService);

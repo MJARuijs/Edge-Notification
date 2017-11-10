@@ -74,7 +74,6 @@ public abstract class CardList {
         list.clear();
     }
 
-
     static String getValue(String line) {
         int begin = line.indexOf(">");
         int end = line.indexOf("<", begin);

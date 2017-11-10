@@ -52,6 +52,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
         holder.appIcon.setTag(iconTag);
         holder.deleteBackground.setTag(deleteBackGrdTag);
         holder.deleteButton.setTag(deleteBtnTag);
+        holder.subCardsButton.setTag(card.getAppName());
         holder.blacklistButton.setTag(card.getAppName());
 
         holder.cv.setOnLongClickListener(new View.OnLongClickListener() {
@@ -85,6 +86,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
         TextView appName;
         ImageView appIcon;
         Button appNotificationColor;
+        Button subCardsButton;
         Button blacklistButton;
 
         CardViewHolder(View itemView) {
@@ -95,6 +97,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
             appName = (TextView) itemView.findViewById(R.id.app_name);
             appIcon = (ImageView) itemView.findViewById(R.id.app_icon);
             appNotificationColor = (Button) itemView.findViewById(R.id.app_notification_color);
+            subCardsButton = (Button) itemView.findViewById(R.id.subCards_button);
             blacklistButton = (Button) itemView.findViewById(R.id.blacklist_button);
         }
     }

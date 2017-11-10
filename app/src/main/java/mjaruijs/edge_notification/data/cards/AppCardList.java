@@ -102,6 +102,7 @@ public class AppCardList extends CardList {
         Drawable icon = null;
         int color = 0;
         Blacklist blacklist = new Blacklist();
+        Sublist sublist = new Sublist();
 
         try {
             Scanner sc = new Scanner(file);
@@ -116,8 +117,10 @@ public class AppCardList extends CardList {
                         color = Integer.parseInt(getValue(line));
                     } else if (line.contains("<blacklist>")) {
                         blacklist = Blacklist.readFromXML(sc);
+                    } else if (line.contains("<sub-cards>")) {
+                        sublist = Sublist.readFromXML(sc);
                     } else if (line.contains("</app-card>")) {
-                        list.addCard(new AppCard(appName, icon, color, blacklist));
+                        list.addCard(new AppCard(appName, icon, color, blacklist, sublist));
                     }
 
                 } while(!line.contains("</app-list>") && sc.hasNextLine());
@@ -140,6 +143,7 @@ public class AppCardList extends CardList {
                 fileContent
                         .append("\n\t\t<app-card>" + "\n\t\t\t<name>").append(card.getAppName()).append("</name>")
                         .append("\n\t\t\t<color>").append(card.getColor()).append("</color>")
+                        .append("\n\t\t\t<sub-cards>").append(card.getSublist().toString()).append("</sub-cards>")
                         .append("\n\t\t\t<blacklist>").append(card.getBlacklist().toString()).append("\n\t\t\t</blacklist>")
                         .append("\n\t\t</app-card>");
 

@@ -31,7 +31,6 @@ public class BlacklistAdapter extends RecyclerView.Adapter<BlacklistAdapter.Blac
         String deleteBtnTag = tag + "_Del_Btn";
 
         holder.itemName.setText(cards.get(position).getItem());
-        holder.deleteButton.setTag(cards.get(position).getItem());
         holder.deleteButton.setTag(deleteBtnTag);
     }
 
