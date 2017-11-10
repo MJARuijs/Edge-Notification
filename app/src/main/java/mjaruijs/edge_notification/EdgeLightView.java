@@ -128,7 +128,13 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
     @SuppressWarnings("SuspiciousNameCombination")
     private void drawEdgeLines() {
         try {
-            Display defaultDisplay = ((WindowManager) getContext().getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+            WindowManager windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+
+            if (windowManager == null) {
+                return;
+            }
+
+            Display defaultDisplay = windowManager.getDefaultDisplay();
             DisplayMetrics displayMetrics;
             if (hasNavBar(getContext())) {
                 displayMetrics = new DisplayMetrics();
@@ -169,7 +175,13 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
     }
 
     private boolean hasNavBar(Context context) {
-        Display defaultDisplay = ((WindowManager) context.getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+        WindowManager windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+
+        if (windowManager == null) {
+            return false;
+        }
+
+        Display defaultDisplay = windowManager.getDefaultDisplay();
 
         DisplayMetrics realMetrics = new DisplayMetrics();
         defaultDisplay.getRealMetrics(realMetrics);

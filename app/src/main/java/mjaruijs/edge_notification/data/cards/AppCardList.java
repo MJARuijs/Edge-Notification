@@ -13,13 +13,10 @@ import mjaruijs.edge_notification.data.IconMap;
 
 public class AppCardList extends CardList {
 
-//    private static Context context;
     private static List<AppCard> appCardList;
     private static File file;
-    private static final String TAG = "AppCardList";
 
     public static void initialize(File appFile) {
-//        context = contxt;
         file = appFile;
         appCardList = new ArrayList<>();
     }
@@ -134,22 +131,22 @@ public class AppCardList extends CardList {
 
     @Override
     public String toString() {
-        String fileContent = "\n<app-list>";
+        StringBuilder fileContent = new StringBuilder("\n<app-list>");
 
         if (appCardList.size() > 0) {
 
             for (AppCard card : appCardList) {
 
-                fileContent += "\n\t\t<app-card>"
-                        + "\n\t\t\t<name>" + card.getAppName() + "</name>"
-                        + "\n\t\t\t<color>" + card.getColor() + "</color>"
-//                        + "\n\t\t\t<blacklist>" + card.getBlacklist().toString() + "\n\t\t\t</blacklist>"
-                        + "\n\t\t</app-card>";
+                fileContent
+                        .append("\n\t\t<app-card>" + "\n\t\t\t<name>").append(card.getAppName()).append("</name>")
+                        .append("\n\t\t\t<color>").append(card.getColor()).append("</color>")
+                        .append("\n\t\t\t<blacklist>").append(card.getBlacklist().toString()).append("\n\t\t\t</blacklist>")
+                        .append("\n\t\t</app-card>");
 
             }
         }
 
-        fileContent += "\n</app-list>";
-        return fileContent;
+        fileContent.append("\n</app-list>");
+        return fileContent.toString();
     }
 }

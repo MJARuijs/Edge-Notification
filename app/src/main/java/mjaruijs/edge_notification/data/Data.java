@@ -12,25 +12,18 @@ import mjaruijs.edge_notification.data.cards.AppCardList;
 public class Data {
 
     private static AppCardList appCardList;
-//    private static Blacklist blacklist;
     private static File file;
 
     public static void initialize(File appFile, IconMap iconMap) {
-        final String fileName = "app_array.txt";
+        final String fileName = "app_array.xml";
         file = new File(appFile, fileName);
         AppCardList.initialize(file);
-//        Blacklist.initialize(file);
         appCardList = AppCardList.readFromXML(iconMap);
-//        blacklist = Blacklist.readFromXML(iconMap);
     }
 
     public static AppCardList getCards() {
         return appCardList;
     }
-
-//    public static Blacklist getBlacklist() {
-//        return blacklist;
-//    }
 
     public static void writeToFile()  {
 
@@ -38,7 +31,6 @@ public class Data {
             FileWriter fileWriter = new FileWriter(file);
             PrintWriter printWriter = new PrintWriter(fileWriter);
             String fileContent = "<resources>";
-//            fileContent += appCardList.toString() + blacklist.toString();
             fileContent += appCardList.toString();
 
             fileContent += "\n</resources>";

@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mjaruijs.edge_notification.R;
+import mjaruijs.edge_notification.adapters.AppList;
 import mjaruijs.edge_notification.adapters.CardAdapter;
 import mjaruijs.edge_notification.color_picker.ColorPickerPalette;
 import mjaruijs.edge_notification.color_picker.ColorPickerSwatch;
@@ -45,20 +46,21 @@ import mjaruijs.edge_notification.data.cards.AppCard;
 import mjaruijs.edge_notification.data.cards.AppCardList;
 import mjaruijs.edge_notification.fragments.SettingsFragment;
 import mjaruijs.edge_notification.preferences.Prefs;
-import mjaruijs.edge_notification.adapters.AppList;
 import mjaruijs.edge_notification.services.MainService;
 
 public class MainActivity extends AppCompatActivity  {
 
+    private final String TAG = getClass().getSimpleName();
+
     private AlertDialog colorAlertDialog;
     private CardAdapter appCardAdapter;
-    private IconMap     iconMap;
+    private IconMap iconMap;
     private AppCardList cards;
-    private String      TAG = getClass().getSimpleName();
-    private Dialog      dia;
-    public  String[]    strings;
-    public  Drawable[]  icons;
-    private int[]       colors;
+    private Dialog dia;
+    public  String[] strings;
+    public  Drawable[] icons;
+    private int[] colors;
+
     private AppCard selectedCard;
 
     private RecyclerView appCardView;
@@ -107,6 +109,7 @@ public class MainActivity extends AppCompatActivity  {
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
+
             File file = Environment.getExternalStorageDirectory();
             Data.initialize(file, iconMap);
 
@@ -204,6 +207,11 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
+    public void onClickDeleteBlackCard(View view) {
+        Log.i(TAG, view.getTag().toString());
+        selectedCard.removeFromBlackList(view.getTag().toString());
+    }
+
     public void onClickDeleteCard(final View v) {
         final String tag = v.getTag().toString().replace("_Del_Btn", "");
         final String nameTag = tag + "_Name";
@@ -281,6 +289,11 @@ public class MainActivity extends AppCompatActivity  {
     public void onClickColorButton(View v) {
         selectedCard = cards.getByName(v.getTag().toString());
         colorAlertDialog.show();
+    }
+
+    public void showBlacklist(View view) {
+        selectedCard = cards.getByName(view.getTag().toString());
+        selectedCard.showBlacklist(this);
     }
 
     // TODO: Add a checkbox that allows the user to add system apps too.
@@ -417,4 +430,6 @@ public class MainActivity extends AppCompatActivity  {
         }
         super.onSaveInstanceState(outState);
     }
+
+
 }

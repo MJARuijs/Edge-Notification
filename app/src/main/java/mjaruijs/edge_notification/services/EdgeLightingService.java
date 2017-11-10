@@ -10,6 +10,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
@@ -35,12 +36,10 @@ public class EdgeLightingService extends Service implements SensorEventListener 
     private EdgeReceiver edgeReceiver = new EdgeReceiver(this);
     private WindowManager wm;
     private Variables vars;
-    private AppCardList AppCardList;
     private List<AppCard> cards;
     private Display display;
     private Prefs prefs;
     private SensorManager sensorManager;
-    private PowerManager.WakeLock wakeLock;
     private Intent notificationListener;
     private static final int SENSOR_SENSITIVITY = 1;
     private boolean initialized = false;
@@ -98,12 +97,13 @@ public class EdgeLightingService extends Service implements SensorEventListener 
                 screenOff = true;
                 PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
-                 wakeLock = pm.newWakeLock(FULL_WAKE_LOCK
+                assert pm != null;
+                PowerManager.WakeLock wakeLock = pm.newWakeLock(FULL_WAKE_LOCK
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                         | PowerManager.ACQUIRE_CAUSES_WAKEUP
                         | PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "MyWakeLock");
 
-                wakeLock.acquire();
+                wakeLock.acquire(10*60*1000L /*10 minutes*/);
 //                wakeLock.release();
 
             }
@@ -174,7 +174,7 @@ public class EdgeLightingService extends Service implements SensorEventListener 
 
     @Nullable
     private AppCard getSelectedCard(String appName) {
-        Log.i(getClass().getSimpleName(), "NAME" + appName);
+        Log.i(getClass().getSimpleName(), "NAME " + appName);
         for (AppCard card : cards) {
             Log.i(getClass().getSimpleName(), "APP " + card.getAppName());
             if (card.getAppName().trim().toLowerCase().equals(appName.toLowerCase().trim())) {
@@ -203,6 +203,8 @@ public class EdgeLightingService extends Service implements SensorEventListener 
         prefs = new Prefs(getApplicationContext());
         prefs.apply();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+
+        assert wm != null;
         display = wm.getDefaultDisplay();
         cards = AppCardList.getCards();
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -299,19 +301,20 @@ public class EdgeLightingService extends Service implements SensorEventListener 
     }
 
     private boolean isBlacklisted(String appName, String ticker) {
-        Log.i(getClass().getSimpleName(), "CHECKING " + ticker);
         AppCard card = getSelectedCard(appName);
         if (card != null) {
-//            Log.i(getClass().getSimpleName(), "SIZE " + card.getBlackList().size());
-//            for (String str : card.getBlackList()) {
-//                Log.i(getClass().getSimpleName(), "String: " + str);
-//                if (ticker.contains(str)) {
-//                    return true;
-//                }
-//            }
-//            return card.getBlackList().contains(ticker);
-        } else {
-            Log.i(getClass().getSimpleName(), "NULL");
+            if (card.getBlacklist().contains(ticker)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean cardExists(String appName) {
+        for (AppCard card : cards) {
+            if (card.getAppName().equals(appName)) {
+                return true;
+            }
         }
         return false;
     }
@@ -333,20 +336,41 @@ public class EdgeLightingService extends Service implements SensorEventListener 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if ("mjaruijs.edge_notification.DRAW_EDGE".equals(action)) {
+
                 String name = intent.getStringExtra("action");
 
                 if (intent.getStringExtra("notification_event").equals("posted")) {
-                        String ticker = intent.getStringExtra("ticker");
-                        action = intent.getStringExtra("action");
+
+                    String ticker = intent.getStringExtra("ticker");
+                    action = intent.getStringExtra("action");
                     Log.i(getClass().getSimpleName(), "ticker " + ticker);
 
-                    long parseLong = Long.parseLong(intent.getExtras().get("notify_posted_time").toString());
+                    Bundle extras = intent.getExtras();
 
-                        if (!(action.equals("") && parseLong == 0) && !isBlacklisted(name, ticker)) {
-                            Log.i(getClass().getSimpleName(), "ADDING TO VIEW ");
+                    if (extras == null) {
+                        return;
+                    }
 
-                            edgeService.addViewToWM(name);
-                        }
+                    Object notificationTime = intent.getExtras().get("notify_posted_time");
+
+                    if (notificationTime == null) {
+                        return;
+                    }
+
+                    long parseLong = Long.parseLong(notificationTime.toString());
+
+                    if (!cardExists(name)) {
+                        return;
+                    }
+
+                    if (isBlacklisted(name, ticker)) {
+                        return;
+                    }
+
+                    if (!(action.equals("") && parseLong == 0)) {
+                        Log.i(getClass().getSimpleName(), "ADDING TO VIEW ");
+                        edgeService.addViewToWM(name);
+                    }
 
                 }
                 if (intent.getStringExtra("notification_event").equals("removed")) {

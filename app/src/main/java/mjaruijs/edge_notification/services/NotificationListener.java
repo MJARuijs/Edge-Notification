@@ -40,6 +40,7 @@ public class NotificationListener extends NotificationListenerService {
             intent.putExtra("action", appName);
             intent.putExtra("notification_event", "posted");
             if (sbn.getNotification().tickerText != null) {
+                Log.i(TAG, sbn.getNotification().tickerText.toString());
                 intent.putExtra("ticker", sbn.getNotification().tickerText.toString());
             } else {
                 intent.putExtra("ticker", "null");

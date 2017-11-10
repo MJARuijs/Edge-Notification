@@ -28,7 +28,6 @@ public class BlacklistAdapter extends RecyclerView.Adapter<BlacklistAdapter.Blac
     @Override
     public void onBindViewHolder(final BlacklistHolder holder, int position) {
         final String tag = cards.get(position).getAppName();
-        String itemTag = tag + "_Item";
         String deleteBtnTag = tag + "_Del_Btn";
 
         holder.itemName.setText(cards.get(position).getItem());

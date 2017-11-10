@@ -44,6 +44,7 @@
             android:backgroundTint="@color/red"
             android:contentDescription="@string/app_icon"
             android:tag="@string/app_icon"
+            android:onClick="onClickDeleteBlackCard"
             android:text="Delete"
             card_view:layout_constraintRight_toRightOf="parent"
             card_view:layout_constraintTop_toTopOf="parent" />
