@@ -1,7 +1,5 @@
 package mjaruijs.edge_notification.data.cards;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -18,6 +16,15 @@ public class Sublist {
 
     void addCard(SubCard subCard) {
         sublist.add(subCard);
+    }
+
+    public int getSubColor(String ticker) {
+        for (SubCard subCard : sublist) {
+            if (ticker.contains(subCard.getItem())) {
+                return subCard.getColor();
+            }
+        }
+        return 0;
     }
 
     void deleteCard(String cardName) {
@@ -55,6 +62,10 @@ public class Sublist {
         String subListName = "";
 
         do {
+            if (!sc.hasNext()) {
+                return list;
+            }
+
             line = sc.nextLine();
             if (line.contains("item")) {
                 subListName = getValue(line);
@@ -64,8 +75,6 @@ public class Sublist {
                 list.addCard(new SubCard(subListName, color));
             }
         } while(!line.contains("</sub-cards>"));
-
-        Log.i("SUBLIST PARSER: ", list.toString());
 
         return list;
     }
@@ -80,7 +89,7 @@ public class Sublist {
                 fileContent.append("\n\t\t\t\t<sub-card>")
                         .append("\n\t\t\t\t\t<item>").append(subCard.getItem()).append("</item>")
                         .append("\n\t\t\t\t\t<color>").append(subCard.getColor()).append("</color>")
-                        .append("\n\t\t\t/t</sub-card>");
+                        .append("\n\t\t\t\t</sub-card>");
             }
         }
 

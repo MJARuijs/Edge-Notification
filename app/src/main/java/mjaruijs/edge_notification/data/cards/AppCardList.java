@@ -1,7 +1,6 @@
 package mjaruijs.edge_notification.data.cards;
 
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,6 +22,12 @@ public class AppCardList extends CardList {
 
     public static List<AppCard> getCards() {
         return appCardList;
+    }
+
+    public void deselectCards() {
+        for (AppCard card : appCardList) {
+            card.setSelected(false);
+        }
     }
 
     public void addCard(AppCard card) {
@@ -48,7 +53,6 @@ public class AppCardList extends CardList {
         int counter = 0;
 
         for (AppCard card : appCardList) {
-
             if (card.isSelected()) {
                 counter++;
             }
@@ -64,12 +68,10 @@ public class AppCardList extends CardList {
     public List<AppCard> getSelectedCards() {
         List<AppCard> selectedCards = new ArrayList<>();
 
-        for (AppCard card : appCardList) {
-
+        for (AppCard card : getCards()) {
             if (card.isSelected()) {
                 selectedCards.add(card);
             }
-
         }
         return selectedCards;
     }
@@ -125,7 +127,6 @@ public class AppCardList extends CardList {
 
                 } while(!line.contains("</app-list>") && sc.hasNextLine());
             }
-            Log.i("CARD PARSER: ", list.toString());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -143,7 +144,7 @@ public class AppCardList extends CardList {
                 fileContent
                         .append("\n\t\t<app-card>" + "\n\t\t\t<name>").append(card.getAppName()).append("</name>")
                         .append("\n\t\t\t<color>").append(card.getColor()).append("</color>")
-                        .append("\n\t\t\t<sub-cards>").append(card.getSublist().toString()).append("</sub-cards>")
+                        .append("\n\t\t\t<sub-cards>").append(card.getSublist().toString()).append("\n\t\t\t</sub-cards>")
                         .append("\n\t\t\t<blacklist>").append(card.getBlacklist().toString()).append("\n\t\t\t</blacklist>")
                         .append("\n\t\t</app-card>");
 

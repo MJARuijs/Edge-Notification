@@ -11,7 +11,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Shader;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -32,7 +31,6 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
     private int height;
     private float animatorFloat;
     public Variables vars;
-//    private static final int SENSOR_SENSITIVITY = 4;
     private boolean screenOff;
     private Context context;
 
@@ -113,7 +111,6 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
         path.cubicTo(width - f, (height - f2) - f, width - f, height - f, (width - f) - f2, height - f);
         path.lineTo((width - f) - f2, height - f);
         canvas.drawPath(path, paint);
-        Log.i(getClass().getSimpleName(), "CANVAS DRAWN");
     }
 
     private void callShader(EdgeLightView lightingEdgeView, float f, int i, Object obj) {
@@ -161,7 +158,6 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
 
             if (screenOff) {
                 drawBackground(backgroundCanvas);
-
                 setKeepScreenOn(true);
             }
 
@@ -174,6 +170,7 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
         }
     }
 
+    @SuppressWarnings("RedundantIfStatement")
     private boolean hasNavBar(Context context) {
         WindowManager windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
 
@@ -261,6 +258,7 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
         setVisibility(View.GONE);
         valueAnimator.cancel();
     }
+
     @Override
     public void onAnimationUpdate(ValueAnimator animation) {
         try {

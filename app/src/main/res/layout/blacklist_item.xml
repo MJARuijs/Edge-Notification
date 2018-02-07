@@ -41,7 +41,7 @@
             android:layout_height="48dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp"
-            android:backgroundTint="@color/red"
+            android:backgroundTint="@color/r"
             android:contentDescription="@string/app_icon"
             android:tag="@string/app_icon"
             android:onClick="onClickDeleteBlackCard"

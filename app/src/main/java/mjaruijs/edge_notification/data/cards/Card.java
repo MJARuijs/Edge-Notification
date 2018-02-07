@@ -8,7 +8,7 @@ public abstract class Card {
     private Drawable appIcon;
     private boolean selected;
 
-    public Card(String appName, Drawable appIcon) {
+    Card(String appName, Drawable appIcon) {
         this.appName = appName;
         this.appIcon = appIcon;
     }
@@ -25,7 +25,7 @@ public abstract class Card {
         return appIcon;
     }
 
-    public boolean isSelected() {
+    boolean isSelected() {
         return selected;
     }
 

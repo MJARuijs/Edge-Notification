@@ -47,9 +47,9 @@ public class BlacklistAdapter extends RecyclerView.Adapter<BlacklistAdapter.Blac
 
         BlacklistHolder(View itemView) {
             super(itemView);
-            cv = (CardView) itemView.findViewById(R.id.card_view);
-            itemName = (TextView) itemView.findViewById(R.id.blacklist_text);
-            deleteButton = (Button) itemView.findViewById(R.id.blacklist_delete_button);
+            cv = itemView.findViewById(R.id.card_view);
+            itemName = itemView.findViewById(R.id.blacklist_text);
+            deleteButton = itemView.findViewById(R.id.blacklist_delete_button);
         }
     }
 }

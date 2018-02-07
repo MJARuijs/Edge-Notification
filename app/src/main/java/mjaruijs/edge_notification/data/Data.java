@@ -1,7 +1,5 @@
 package mjaruijs.edge_notification.data;
 
-import android.util.Log;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,15 +11,20 @@ public class Data {
 
     private static AppCardList appCardList;
     private static File file;
+    private static boolean initialized = false;
 
     public static void initialize(File appFile, IconMap iconMap) {
         final String fileName = "app_array.xml";
         file = new File(appFile, fileName);
         AppCardList.initialize(file);
         appCardList = AppCardList.readFromXML(iconMap);
+        initialized = true;
     }
 
-    public static AppCardList getCards() {
+    public static AppCardList getCards(File file, IconMap iconMap) {
+        if (!initialized) {
+            initialize(file, iconMap);
+        }
         return appCardList;
     }
 
@@ -35,14 +38,10 @@ public class Data {
 
             fileContent += "\n</resources>";
 
-            Log.i("Data", fileContent);
-
             printWriter.write(fileContent);
             printWriter.close();
-
         } catch (IOException e) {
             e.printStackTrace();
-            Log.i("Data", "EXCEPTION " + e);
         }
 
     }

@@ -63,7 +63,6 @@ public class Blacklist {
 
         } while(!line.contains("</blacklist>"));
 
-        Log.i("BLACKLIST PARSER: ", list.toString());
         return list;
     }
 

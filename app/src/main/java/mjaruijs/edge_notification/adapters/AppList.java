@@ -5,6 +5,7 @@ import android.database.DataSetObserver;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
@@ -67,12 +68,18 @@ public class AppList implements ListAdapter {
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
-        View rowView = inflater.inflate(R.layout.list_item, null, false);
-        TextView txtTitle = (TextView) rowView.findViewById(R.id.app_text);
-        ImageView imageView = (ImageView) rowView.findViewById(R.id.app_icon);
+        View rowView = inflater.inflate(R.layout.list_item, parent, false);
+        rowView.setTag(apps.get(position).getName());
+
+        TextView txtTitle = rowView.findViewById(R.id.app_text);
+        ImageView imageView = rowView.findViewById(R.id.app_icon);
+        Button button = rowView.findViewById(R.id.add_button);
+
         txtTitle.setText(apps.get(position).getName());
+        txtTitle.setTag(apps.get(position).getName());
         imageView.setImageDrawable(apps.get(position).getIcon());
         imageView.setTag(apps.get(position).getIcon());
+        button.setTag(apps.get(position).getName());
         return rowView;
     }
 

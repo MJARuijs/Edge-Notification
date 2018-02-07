@@ -4,32 +4,35 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-public class Prefs {
+import static mjaruijs.edge_notification.preferences.Preferences.KEYS.INITIALIZED;
+
+public class Preferences {
 
     public boolean initialized;
     public boolean enabled;
-    public boolean keepFlashing;
 
     private SharedPreferences prefs;
 
-    public Prefs(Context context) {
+    public Preferences(Context context) {
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     public void apply() {
         enabled = prefs.getBoolean(KEYS.ENABLED.toString(), false);
-        keepFlashing = prefs.getBoolean(KEYS.KEEP_FLASHING.toString(), false);
-        initialized = prefs.getBoolean(KEYS.INITIALIZED.toString(), false);
+        initialized = prefs.getBoolean(INITIALIZED.toString(), false);
     }
 
-    public void setBool(String key, boolean value) {
+    public void initialize() {
+        setBoolean(INITIALIZED.id, true);
+    }
+
+    public void setBoolean(String key, boolean value) {
         prefs.edit().putBoolean(key, value).apply();
     }
 
     public enum KEYS {
         ENABLED("enabled"),
-        INITIALIZED("initialized"),
-        KEEP_FLASHING("keepFlashing");
+        INITIALIZED("initialized");
 
         private final String id;
 

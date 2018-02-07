@@ -31,7 +31,7 @@ public class ColorStateDrawable extends LayerDrawable {
 
     private int mColor;
 
-    public ColorStateDrawable(Drawable[] layers, int color) {
+    ColorStateDrawable(Drawable[] layers, int color) {
         super(layers);
         mColor = color;
     }

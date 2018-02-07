@@ -57,10 +57,10 @@ public class SublistAdapter extends RecyclerView.Adapter<SublistAdapter.SublistH
 
         SublistHolder(View itemView) {
             super(itemView);
-            cardView = (CardView) itemView.findViewById(R.id.sub_card_view);
-            notificationColor = (Button) itemView.findViewById(R.id.sub_notification_color);
-            item = (TextView) itemView.findViewById(R.id.sub_text);
-            deleteButton = (Button) itemView.findViewById(R.id.sub_delete_button);
+            cardView = itemView.findViewById(R.id.sub_card_view);
+            notificationColor = itemView.findViewById(R.id.sub_notification_color);
+            item = itemView.findViewById(R.id.sub_text);
+            deleteButton = itemView.findViewById(R.id.sub_delete_button);
         }
     }
 

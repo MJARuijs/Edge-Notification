@@ -11,16 +11,16 @@
 
     <color name="black_overlay">#66000000</color>
 
-    <color name="red">#d9534f</color>
+    <color name="r">#d9534f</color>
     <color name="pink">#EB1460</color>
     <color name="purple">#9C1AB1</color>
     <color name="deep_purple">#6633B9</color>
     <color name="indigo">#3D4DB7</color>
-    <color name="blue">#1093f5</color>
+    <color name="b">#1093f5</color>
     <color name="light_blue">#00A6F6</color>
     <color name="cyan">#00bbd5</color>
     <color name="teal">#009687</color>
-    <color name="green">#46AF4A</color>
+    <color name="g">#46AF4A</color>
     <color name="light_green">#88C440</color>
     <color name="lime">#CCDD1E</color>
     <color name="yellow">#FFEC16</color>

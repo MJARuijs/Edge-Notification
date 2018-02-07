@@ -58,7 +58,7 @@ public class ColorPickerPalette extends TableLayout {
     public void init(int size, int columns, OnColorSelectedListener listener) {
         mNumColumns = columns;
         Resources res = getResources();
-        if (size == ColorPickerDialog.SIZE_LARGE) {
+        if (size == 2) {
             mSwatchLength = res.getDimensionPixelSize(R.dimen.color_swatch_large);
             mMarginSize = res.getDimensionPixelSize(R.dimen.color_swatch_margins_large);
         } else {

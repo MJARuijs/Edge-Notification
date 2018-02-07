@@ -28,6 +28,8 @@ public class AppCard extends Card {
     private Dialog blacklistDialog;
     private BlacklistAdapter blacklistAdapter;
 
+    private Dialog inputDialog;
+
     public AppCard(String appName, Drawable appIcon, int color) {
         super(appName, appIcon);
         this.color = color;
@@ -141,19 +143,31 @@ public class AppCard extends Card {
         }
     }
 
-    private void showInputDialog(Context context, String type) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Enter Name");
-
-        // Set up the input
+    private void showInputDialog(Context context, final String type) {
         final EditText input = new EditText(context);
-
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
         input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder
+                .setTitle("Enter Name")
+                .setView(input)
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        if (type.equals("sublist")) {
+                            sublistDialog.show();
+                        } else {
+                            blacklistDialog.show();
+                        }
+                    }
+        });
         if (type.equals("sublist")) {
-            // Set up the buttons
             builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -161,7 +175,6 @@ public class AppCard extends Card {
                 }
             });
         } else if (type.equals("blacklist")) {
-            // Set up the buttons
             builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -170,15 +183,20 @@ public class AppCard extends Card {
             });
         }
 
+        inputDialog = builder.create();
+        inputDialog.show();
+    }
 
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
+    public void destroy() {
+        if (sublistDialog != null) {
+            sublistDialog.dismiss();
+        }
+        if (blacklistDialog != null) {
+            blacklistDialog.dismiss();
+        }
+        if (inputDialog != null) {
+            inputDialog.dismiss();
+        }
     }
 
 }

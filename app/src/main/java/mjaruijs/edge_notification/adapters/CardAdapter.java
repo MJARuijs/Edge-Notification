@@ -31,8 +31,8 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
     @Override
     public void onBindViewHolder(final CardViewHolder holder, final int position) {
         final AppCard card = cards.get(position);
-
         final String tag = cards.get(position).getAppName();
+
         String nameTag = tag + "_Name";
         String iconTag = tag + "_Icon";
         String deleteBtnTag = tag + "_Del_Btn";
@@ -52,6 +52,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
         holder.appIcon.setTag(iconTag);
         holder.deleteBackground.setTag(deleteBackGrdTag);
         holder.deleteButton.setTag(deleteBtnTag);
+        holder.deleteButton.setBackgroundResource(R.drawable.delete_icon);
         holder.subCardsButton.setTag(card.getAppName());
         holder.blacklistButton.setTag(card.getAppName());
 
@@ -67,6 +68,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
                 return true;
             }
         });
+
     }
 
     @Override
@@ -91,14 +93,14 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
 
         CardViewHolder(View itemView) {
             super(itemView);
-            cv = (CardView) itemView.findViewById(R.id.card_view);
-            deleteButton = (Button) itemView.findViewById(R.id.delete_button);
-            deleteBackground = (ImageView) itemView.findViewById(R.id.delete_background);
-            appName = (TextView) itemView.findViewById(R.id.app_name);
-            appIcon = (ImageView) itemView.findViewById(R.id.app_icon);
-            appNotificationColor = (Button) itemView.findViewById(R.id.app_notification_color);
-            subCardsButton = (Button) itemView.findViewById(R.id.subCards_button);
-            blacklistButton = (Button) itemView.findViewById(R.id.blacklist_button);
+            cv = itemView.findViewById(R.id.card_view);
+            deleteButton = itemView.findViewById(R.id.delete_button);
+            deleteBackground = itemView.findViewById(R.id.delete_background);
+            appName = itemView.findViewById(R.id.app_name);
+            appIcon = itemView.findViewById(R.id.app_icon);
+            appNotificationColor = itemView.findViewById(R.id.app_notification_color);
+            subCardsButton = itemView.findViewById(R.id.subCards_button);
+            blacklistButton = itemView.findViewById(R.id.blacklist_button);
         }
     }
 }

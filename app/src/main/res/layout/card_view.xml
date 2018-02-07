@@ -30,12 +30,11 @@
                 android:layout_width="344dp"
                 android:layout_height="60dp"
                 android:contentDescription="@string/delete_background"
+                android:longClickable="true"
                 android:visibility="invisible"
                 card_view:layout_constraintLeft_toLeftOf="parent"
-                card_view:srcCompat="@color/red"
-                android:layout_marginStart="0dp"
                 card_view:layout_constraintTop_toTopOf="@+id/delete_button"
-                android:layout_marginTop="0dp" />
+                card_view:srcCompat="@color/r" />
 
             <ImageView
                 android:id="@+id/app_icon"
@@ -82,13 +81,14 @@
                 android:id="@+id/delete_button"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:background="@drawable/delete_icon"
                 android:onClick="onClickDeleteCard"
                 android:visibility="invisible"
+                android:src="@drawable/delete_icon"
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintStart_toStartOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="142dp" />
+                tools:layout_editor_absoluteX="142dp"
+                android:contentDescription="@string/delete_button" />
 
             <Button
                 android:id="@+id/subCards_button"
@@ -96,7 +96,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:onClick="showSubCards"
-                android:text="SubCards"
+                android:text="@string/subCards"
                 android:layout_marginStart="8dp"
                 card_view:layout_constraintLeft_toLeftOf="parent"
                 card_view:layout_constraintBottom_toBottomOf="parent"
