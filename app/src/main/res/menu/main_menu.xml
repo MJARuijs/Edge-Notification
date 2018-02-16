@@ -5,13 +5,8 @@
     android:background="@color/darkPrimaryDark" >
 
     <item
-        android:id="@+id/menu_preferences"
-        android:title="@string/menu_btn_preferences"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/menu_permission"
-        android:title="@string/menu_btn_permission"
+        android:id="@+id/notification_permission"
+        android:title="@string/get_permission"
         app:showAsAction="never" />
 
     <item

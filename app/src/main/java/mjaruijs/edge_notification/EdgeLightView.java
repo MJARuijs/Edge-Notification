@@ -10,11 +10,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Shader;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -24,43 +20,44 @@ import mjaruijs.edge_notification.values.Variables;
 
 import static android.content.Context.WINDOW_SERVICE;
 
-public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateListener, SensorEventListener {
+public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateListener {
 
     private ValueAnimator valueAnimator;
-    private Bitmap bitmap1;
-    private Bitmap bitmap2;
+    private Bitmap bitmapMainColor;
+    private Bitmap bitmapBackgroundColor;
     private Paint paint = new Paint();
-    private Paint paint1;
+    private Paint backgroundPaint;
     private int width;
     private int height;
     private float animatorFloat;
     public Variables vars;
-    private static final int SENSOR_SENSITIVITY = 4;
-    private boolean proximityClose;
     private boolean screenOff;
+    private Context context;
 
     public EdgeLightView(Context context) {
         super(context);
+        this.context = context;
     }
 
     public EdgeLightView(Context context, Variables vars, boolean screenOff) {
         super(context);
         this.vars = vars;
         this.screenOff = screenOff;
-        this.valueAnimator = ValueAnimator.ofFloat(0.0f, 360.0f);
-        this.valueAnimator.setDuration(3000);
-        this.valueAnimator.setRepeatMode(ValueAnimator.RESTART);
-        this.valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        this.valueAnimator.setInterpolator(new LinearInterpolator());
-        this.valueAnimator.addUpdateListener(this);
+        this.context = context;
+        valueAnimator = ValueAnimator.ofFloat(0.0f, 360.0f);
+        valueAnimator.setDuration(3000);
+        valueAnimator.setRepeatMode(ValueAnimator.RESTART);
+        valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        valueAnimator.setInterpolator(new LinearInterpolator());
+        valueAnimator.addUpdateListener(this);
 
-        this.paint.setAntiAlias(true);
-        this.paint.setDither(false);
-        this.paint1 = new Paint();
-        this.paint1.setDither(false);
-        this.paint1.setAntiAlias(true);
-        this.paint1.setColor(Color.BLACK);
-        this.animatorFloat = -999.0f;
+        paint.setAntiAlias(true);
+        paint.setDither(false);
+        backgroundPaint = new Paint();
+        backgroundPaint.setDither(true);
+        backgroundPaint.setAntiAlias(true);
+        backgroundPaint.setColor(Color.BLACK);
+        animatorFloat = -999.0f;
     }
 
     private void setShader(float floatValue) {
@@ -75,55 +72,45 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
             y0 = 760;
             y = 2200;
         }
-            this.paint.setShader(new LinearGradient(770, y0, 770, y, this.vars.integers, this.vars.floats, Shader.TileMode.CLAMP));
-            paint.getShader().setLocalMatrix(m);
+        paint.setShader(new LinearGradient(770, y0, 770, y, vars.integers, vars.floats, Shader.TileMode.CLAMP));
+        paint.getShader().setLocalMatrix(m);
     }
 
-    private void drawBackground(Canvas canvas, Paint paint, int width, int height) {
-        Path path = new Path();
-
-        path.moveTo(0, 0);
-        path.lineTo(width, 0);
-        path.lineTo(width, height);
-        path.lineTo(0, height);
-        path.lineTo(0, 0);
-        canvas.drawPath(path, paint);
-
+    private void drawBackground(Canvas canvas) {
+        canvas.drawRect(0.0f, 0.0f, (float) width, (float) height, backgroundPaint);
     }
 
-    private void drawEdgeCorners(Canvas canvas, Paint paint, int i, int i2, float f, float f2) {
-        float f3 = this.vars.f9605e ? f2 : 0.0f;
-        Path path = new Path();
+    private void drawEdgeCorners(Canvas canvas, Paint paint, float f, float f2) {
+        float width = (float)this.width;
+        float height = (float)this.height;
 
+        Path path = new Path();
         path.moveTo(f, f);
-        path.lineTo(f + f3, f);
-        path.cubicTo(f + f3, f, f, f, f, f + f3);
+        path.lineTo(f + f2, f);
+        path.cubicTo(f + f2, f, f, f, f, f + f2);
         path.lineTo(f, f);
         canvas.drawPath(path, paint);
-        float f4 = this.vars.f9606f ? f2 : 0.0f;
+
         path = new Path();
-        path.moveTo(((float) i) - f, f);
-        path.lineTo(((float) i) - f, f + f4);
-        path.cubicTo(((float) i) - f, f + f4, ((float) i) - f, f, (((float) i) - f) - f4, f);
-        path.lineTo((((float) i) - f) - f4, f);
+        path.moveTo(width - f, f);
+        path.lineTo(width - f, f + f2);
+        path.cubicTo(width - f, f + f2, width - f, f, (width - f) - f2, f);
+        path.lineTo((width - f) - f2, f);
         canvas.drawPath(path, paint);
-        f4 = this.vars.f9604d ? f2 : 0.0f;
+
         path = new Path();
-        path.moveTo(f, ((float) i2) - f);
-        path.lineTo(f, (((float) i2) - f4) - f);
-        path.cubicTo(f, (((float) i2) - f4) - f, f, ((float) i2) - f, f + f4, ((float) i2) - f);
-        path.lineTo(f + f4, ((float) i2) - f);
+        path.moveTo(f, height - f);
+        path.lineTo(f, (height - f2) - f);
+        path.cubicTo(f, (height - f2) - f, f, height - f, f + f2, height - f);
+        path.lineTo(f + f2, height - f);
         canvas.drawPath(path, paint);
-        if (!this.vars.f9607g) {
-            f2 = 0.0f;
-        }
+
         path = new Path();
-        path.moveTo(((float) i) - f, ((float) i2) - f);
-        path.lineTo(((float) i) - f, (((float) i2) - f2) - f);
-        path.cubicTo(((float) i) - f, (((float) i2) - f2) - f, ((float) i) - f, ((float) i2) - f, (((float) i) - f) - f2, ((float) i2) - f);
-        path.lineTo((((float) i) - f) - f2, ((float) i2) - f);
+        path.moveTo(width - f, height - f);
+        path.lineTo(width - f, (height - f2) - f);
+        path.cubicTo(width - f, (height - f2) - f, width - f, height - f, (width - f) - f2, height - f);
+        path.lineTo((width - f) - f2, height - f);
         canvas.drawPath(path, paint);
-        Log.i(getClass().getSimpleName(), "CANVAS DRAWN");
     }
 
     private void callShader(EdgeLightView lightingEdgeView, float f, int i, Object obj) {
@@ -135,71 +122,88 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
         }
     }
 
+    @SuppressWarnings("SuspiciousNameCombination")
     private void drawEdgeLines() {
         try {
-            Display defaultDisplay = ((WindowManager) getContext().getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+            WindowManager windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+
+            if (windowManager == null) {
+                return;
+            }
+
+            Display defaultDisplay = windowManager.getDefaultDisplay();
             DisplayMetrics displayMetrics;
             if (hasNavBar(getContext())) {
                 displayMetrics = new DisplayMetrics();
                 defaultDisplay.getRealMetrics(displayMetrics);
-                int i = displayMetrics.heightPixels;
-                int i2 = displayMetrics.widthPixels;
-                this.height = i;
-                this.width = i2;
+                height = displayMetrics.heightPixels;
+                width = displayMetrics.widthPixels;
             } else {
                 displayMetrics = new DisplayMetrics();
                 defaultDisplay.getMetrics(displayMetrics);
-                this.height = displayMetrics.heightPixels;
-                this.width = displayMetrics.widthPixels;
+                height = displayMetrics.heightPixels;
+                width = displayMetrics.widthPixels;
             }
-            this.bitmap1 = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ALPHA_8);
-            if (this.vars.f9616p) {
-                this.bitmap2 = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ALPHA_8);
-            } else {
-                this.bitmap2 = null;
-            }
-            Canvas canvas = new Canvas(this.bitmap1);
-            Paint paint = new Paint();
-            paint.setAntiAlias(false);
-            canvas.drawRect(0.0f, 0.0f, (float) this.width, this.vars.f9608h, paint);
-            canvas.drawRect(0.0f, ((float) this.height) - this.vars.f9608h, (float) this.width, (float) this.height, paint);
-            canvas.drawRect(0.0f, this.vars.f9608h, this.vars.f9608h, ((float) this.height) - this.vars.f9608h, paint);
-            canvas.drawRect(((float) this.width) - this.vars.f9608h, this.vars.f9608h, (float) this.width, ((float) this.height) - this.vars.f9608h, paint);
-            if (this.vars.f9616p) {
-                if (screenOff && proximityClose) {
-                    drawBackground(canvas, paint, this.width, this.height);
-                }
-                drawEdgeCorners(canvas, paint, this.width, this.height, this.vars.f9608h, this.vars.f9609i);
-                drawEdgeCorners(new Canvas(this.bitmap2), this.paint1, this.width, this.height, 0.0f, this.vars.f9609i);
 
+            bitmapMainColor = Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8);
+            bitmapBackgroundColor = Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8);
+
+            Canvas mainColorCanvas = new Canvas(bitmapMainColor);
+            Canvas backgroundCanvas = new Canvas(bitmapBackgroundColor);
+
+            mainColorCanvas.drawRect(0.0f, 0.0f, (float) width, vars.strokeWidth, paint);
+            mainColorCanvas.drawRect(0.0f, ((float) height) - vars.strokeWidth, (float) width, (float) height, paint);
+            mainColorCanvas.drawRect(0.0f, vars.strokeWidth, vars.strokeWidth, ((float) height) - vars.strokeWidth, paint);
+            mainColorCanvas.drawRect(((float) width) - vars.strokeWidth, vars.strokeWidth, (float) width, ((float) height) - vars.strokeWidth, paint);
+
+            if (screenOff) {
+                drawBackground(backgroundCanvas);
+                setKeepScreenOn(true);
             }
+
+            drawEdgeCorners(mainColorCanvas, paint, vars.strokeWidth, vars.cornerRadius);
         } catch (Exception e) {
             close();
-            this.valueAnimator = null;
-            this.bitmap1 = null;
-            this.bitmap2 = null;
+            valueAnimator = null;
+            bitmapMainColor = null;
+            bitmapBackgroundColor = null;
         }
     }
 
+    @SuppressWarnings("RedundantIfStatement")
     private boolean hasNavBar(Context context) {
-        Display defaultDisplay = ((WindowManager) context.getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+        WindowManager windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+
+        if (windowManager == null) {
+            return false;
+        }
+
+        Display defaultDisplay = windowManager.getDefaultDisplay();
+
+        DisplayMetrics realMetrics = new DisplayMetrics();
+        defaultDisplay.getRealMetrics(realMetrics);
+
         DisplayMetrics displayMetrics = new DisplayMetrics();
-        defaultDisplay.getRealMetrics(displayMetrics);
-        int i = displayMetrics.heightPixels;
-        int i2 = displayMetrics.widthPixels;
-        DisplayMetrics displayMetrics2 = new DisplayMetrics();
-        defaultDisplay.getMetrics(displayMetrics2);
-        return i2 - displayMetrics2.widthPixels > 0 || i - displayMetrics2.heightPixels > 0;
+        defaultDisplay.getMetrics(displayMetrics);
+
+        if (realMetrics.widthPixels > displayMetrics.widthPixels) {
+            return true;
+        }
+
+        if (realMetrics.heightPixels > displayMetrics.heightPixels) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
     protected void onSizeChanged(int i, int i2, int i3, int i4) {
-        Log.i(getClass().getSimpleName(), "SIZE CHANGED" + i + " " + i2 + " " + i3 + " " + i4);
         try {
             super.onSizeChanged(i, i2, i3, i4);
             callShader(this, 0.0f, 4, null);
             if (i2 <= 0 || i <= 0) {
-                this.bitmap1 = null;
+                bitmapMainColor = null;
             } else {
                 drawEdgeLines();
             }
@@ -210,12 +214,13 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
 
     protected void onDraw(Canvas canvas) {
         try {
-            if (this.bitmap1 != null) {
-                canvas.drawBitmap(this.bitmap1, 0.0f, 0.0f, this.paint);
+            if (bitmapBackgroundColor != null) {
+                canvas.drawBitmap(bitmapBackgroundColor, 0.0f, 0.0f, backgroundPaint);
             }
-            if (this.bitmap2 != null) {
-                canvas.drawBitmap(this.bitmap2, 0.0f, 0.0f, this.paint1);
+            if (bitmapMainColor != null) {
+                canvas.drawBitmap(bitmapMainColor, 0.0f, 0.0f, paint);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -226,15 +231,15 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
         super.onWindowVisibilityChanged(i);
         switch (i) {
             case VISIBLE:
-                if (this.valueAnimator != null) {
-                    this.valueAnimator.start();
+                if (valueAnimator != null) {
+                    valueAnimator.start();
                     return;
                 }
                 return;
             case INVISIBLE:
             case GONE:
-                if (this.valueAnimator != null) {
-                    this.valueAnimator.cancel();
+                if (valueAnimator != null) {
+                    valueAnimator.cancel();
                     return;
                 }
                 return;
@@ -246,25 +251,25 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        this.valueAnimator.cancel();
+        valueAnimator.cancel();
     }
 
     public final void close() {
-        Log.i(getClass().getSimpleName(), "CLOSE");
         setVisibility(View.GONE);
-        this.valueAnimator.cancel();
+        valueAnimator.cancel();
     }
+
     @Override
     public void onAnimationUpdate(ValueAnimator animation) {
         try {
-            if (this.bitmap1 != null && getAlpha() > 0.0f) {
-                Object animatedValue = this.valueAnimator.getAnimatedValue();
+            if (bitmapMainColor != null && getAlpha() > 0.0f) {
+                Object animatedValue = valueAnimator.getAnimatedValue();
                 if (animatedValue != null) {
                     float floatValue = ((float) ((int) ((Float) animatedValue * ((float) 1000)))) / 1000.0f;
-                    if (this.animatorFloat != floatValue) {
-                        this.animatorFloat = floatValue;
+                    if (animatorFloat != floatValue) {
+                        animatorFloat = floatValue;
                         setShader(floatValue);
-                        invalidate(0, 0, this.width, this.height);
+                        invalidate(0, 0, width, height);
                     }
                 }
             }
@@ -276,26 +281,9 @@ public class EdgeLightView extends View implements ValueAnimator.AnimatorUpdateL
     @Override
     public void setAlpha(float f) {
         super.setAlpha(f);
-        if (f == 0.0f && this.valueAnimator != null) {
+        if (f == 0.0f && valueAnimator != null) {
             valueAnimator.cancel();
         }
     }
 
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-            if (event.values[0] >= -SENSOR_SENSITIVITY && event.values[0] <= SENSOR_SENSITIVITY) {
-                proximityClose = true;
-                Log.i(getClass().getSimpleName(), "Close");
-            } else {
-                proximityClose = false;
-                Log.i(getClass().getSimpleName(), "Far");
-            }
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
 }

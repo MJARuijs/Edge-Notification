@@ -9,7 +9,7 @@
     <android.support.v7.widget.CardView
         android:id="@+id/card_view"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="120dp"
         android:layout_gravity="center"
         android:layout_marginBottom="0dp"
         android:layout_marginEnd="8dp"
@@ -19,8 +19,9 @@
         card_view:cardBackgroundColor="@color/darkPrimary">
 
         <android.support.constraint.ConstraintLayout
+            android:id="@+id/card_view_layout"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="match_parent"
             android:icon="@mipmap/ic_launcher"
             android:orientation="horizontal">
 
@@ -29,10 +30,11 @@
                 android:layout_width="344dp"
                 android:layout_height="60dp"
                 android:contentDescription="@string/delete_background"
+                android:longClickable="true"
                 android:visibility="invisible"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:srcCompat="@color/red"
-                card_view:layout_constraintLeft_toLeftOf="parent" />
+                card_view:layout_constraintLeft_toLeftOf="parent"
+                card_view:layout_constraintTop_toTopOf="@+id/delete_button"
+                card_view:srcCompat="@color/r" />
 
             <ImageView
                 android:id="@+id/app_icon"
@@ -41,9 +43,9 @@
                 android:layout_marginStart="8dp"
                 android:contentDescription="@string/image_description"
                 android:src="@mipmap/ic_launcher"
-                card_view:layout_constraintBottom_toBottomOf="parent"
                 card_view:layout_constraintLeft_toLeftOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent" />
+                card_view:layout_constraintTop_toTopOf="@+id/delete_button"
+                android:layout_marginTop="8dp" />
 
             <Button
                 android:id="@+id/app_notification_color"
@@ -53,10 +55,11 @@
                 android:background="@drawable/circle_button"
                 android:backgroundTintMode="src_in"
                 android:onClick="onClickColorButton"
-                card_view:layout_constraintBottom_toBottomOf="parent"
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintRight_toRightOf="@+id/delete_background"
-                card_view:layout_constraintTop_toTopOf="parent" />
+                card_view:layout_constraintTop_toTopOf="@+id/delete_button"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp" />
 
             <TextView
                 android:id="@+id/app_name"
@@ -78,16 +81,43 @@
                 android:id="@+id/delete_button"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:background="@drawable/delete_icon"
                 android:onClick="onClickDeleteCard"
                 android:visibility="invisible"
-                card_view:layout_constraintBottom_toBottomOf="parent"
+                android:src="@drawable/delete_icon"
                 card_view:layout_constraintEnd_toEndOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent"
                 card_view:layout_constraintStart_toStartOf="parent"
-                tools:layout_editor_absoluteX="124dp" />
+                card_view:layout_constraintTop_toTopOf="parent"
+                tools:layout_editor_absoluteX="142dp"
+                android:contentDescription="@string/delete_button" />
+
+            <Button
+                android:id="@+id/subCards_button"
+                android:layout_width="150dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:onClick="showSubCards"
+                android:text="@string/subCards"
+                android:layout_marginStart="8dp"
+                card_view:layout_constraintLeft_toLeftOf="parent"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/blacklist_button"
+                android:layout_width="150dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:onClick="showBlacklist"
+                android:text="@string/blacklist"
+                android:layout_marginEnd="8dp"
+                card_view:layout_constraintRight_toRightOf="parent"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="8dp" />
 
         </android.support.constraint.ConstraintLayout>
 
+
     </android.support.v7.widget.CardView>
+
+
 </LinearLayout>
