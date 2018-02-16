@@ -5,6 +5,11 @@
     android:background="@color/darkPrimaryDark" >
 
     <item
+        android:id="@+id/notification_permission"
+        android:title="@string/get_permission"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/delete_all"
         android:title="@string/delete_all"
         app:showAsAction="never" />

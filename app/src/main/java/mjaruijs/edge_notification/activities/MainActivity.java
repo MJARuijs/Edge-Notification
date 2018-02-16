@@ -1,9 +1,11 @@
 package mjaruijs.edge_notification.activities;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -12,12 +14,16 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.design.widget.FloatingActionButton;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,11 +36,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mjaruijs.edge_notification.R;
-import mjaruijs.edge_notification.adapters.AppList;
+import mjaruijs.edge_notification.adapters.AppListAdapter;
 import mjaruijs.edge_notification.adapters.CardAdapter;
 import mjaruijs.edge_notification.color_picker.ColorPickerPalette;
 import mjaruijs.edge_notification.color_picker.ColorPickerSwatch;
 import mjaruijs.edge_notification.data.AppItem;
+import mjaruijs.edge_notification.data.AppList;
 import mjaruijs.edge_notification.data.Data;
 import mjaruijs.edge_notification.data.IconMap;
 import mjaruijs.edge_notification.data.PInfo;
@@ -65,25 +72,34 @@ import static mjaruijs.edge_notification.color_picker.Color.TEAL;
 import static mjaruijs.edge_notification.color_picker.Color.WHITE;
 import static mjaruijs.edge_notification.color_picker.Color.YELLOW;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private ColorPicker colorPicker;
-    private CardAdapter appCardAdapter;
-    private IconMap iconMap;
+    private static final int READ_STORAGE_PERMISSION = 0;
+    private static final int WRITE_STORAGE_PERMISSION = 1;
+    private static final int NOTIFICATION_PERMISSION = 2;
+
     private AppCardList cards;
-    private Dialog dia;
+    private AppCard selectedCard;
+
     private AlertDialog deleteAllCardsDialog;
     private AlertDialog deleteMultipleCardsDialog;
     private AlertDialog duplicationDialog;
+    private Dialog appListDialog;
 
-    private AppCard selectedCard;
+    private ColorPicker colorPicker;
+    private IconMap iconMap;
 
     private RecyclerView appCardView;
+    private CardAdapter appCardAdapter;
+
+    private View contentView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        contentView = findViewById(R.id.main_activity);
 
         iconMap = new IconMap();
         colorPicker = new ColorPicker();
@@ -109,9 +125,9 @@ public class MainActivity extends AppCompatActivity {
         // Recycle View
         appCardView = findViewById(R.id.recycle_view);
 
-        final LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
+        final LinearLayoutManager appCardManager = new LinearLayoutManager(getApplicationContext());
 
-        appCardView.setLayoutManager(llm);
+        appCardView.setLayoutManager(appCardManager);
 
         // Get a list of installed apps.
         ArrayList<PInfo> applicationPackages = new ArrayList<>();
@@ -121,6 +137,9 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        getPermissions();
+
+
         File file = Environment.getExternalStorageDirectory();
         Data.initialize(file, iconMap);
 
@@ -128,41 +147,41 @@ public class MainActivity extends AppCompatActivity {
 
         appCardAdapter = new CardAdapter(cards);
 
-        final AppList apps = new AppList(MainActivity.this);
         appCardView.setAdapter(appCardAdapter);
 
+        AppList appList = new AppList();
+
         for (int i = 0; i < applicationPackages.size(); i++) {
-            apps.add(new AppItem(applicationPackages.get(i).appName, applicationPackages.get(i).icon));
+            appList.add(new AppItem(applicationPackages.get(i).appName, applicationPackages.get(i).icon));
         }
 
-        apps.sort();
-        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.Alert_Dialog_Dark);
-        builder.setTitle("Pick an app");
-        builder.setAdapter(apps, new AlertDialog.OnClickListener() {
+        appList.sort();
 
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        AppListAdapter appListAdapter = new AppListAdapter(appList);
 
-            }
-        }).setPositiveButton("Ok", new AlertDialog.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dia.dismiss();
-            }
-        });
+        RecyclerView appListView = new RecyclerView(this);
 
-        dia = builder.create();
-        dia.setCancelable(true);
+        final LinearLayoutManager llm = new LinearLayoutManager(this);
+        appListView.setLayoutManager(llm);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
+        appListView.setAdapter(appListAdapter);
 
-        fab.setOnClickListener(new View.OnClickListener() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Alert_Dialog_Dark);
+        builder.setTitle("Apps");
+        builder.setView(appListView)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-            @Override
-            public void onClick(View view) {
-                dia.show();
-            }
-        });
+                    }
+                });
+
+        appListDialog = builder.create();
+    }
+
+
+    public void onClickFAB(View view) {
+        appListDialog.show();
     }
 
     public void onClickAddButton(View v) {
@@ -324,6 +343,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+
+            case R.id.notification_permission:
+                startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+                return true;
             case R.id.delete_all:
                 showWarningDialog();
                 return true;
@@ -331,6 +354,7 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
 
     private void showWarningDialog() {
         final List<AppCard> selectedCards = cards.getSelectedCards();
@@ -371,6 +395,108 @@ public class MainActivity extends AppCompatActivity {
         deleteAllCardsDialog.show();
     }
 
+    private void getPermissions() {
+        getReadStoragePermission();
+        getWriteStoragePermission();
+        getNotificationAccessPermission();
+    }
+
+    private void getReadStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+                Snackbar.make(contentView, "Storage access is required to save your App-Cards!", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Ok", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                ActivityCompat.requestPermissions(MainActivity.this, new String[] { Manifest.permission.READ_EXTERNAL_STORAGE }, 0 );
+                            }
+                        });
+
+            } else {
+                Snackbar.make(contentView, "Requesting permission to read from storage", Snackbar.LENGTH_LONG).show();
+
+                ActivityCompat.requestPermissions(MainActivity.this, new String[] { Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+            }
+
+        }
+
+    }
+
+    private void getWriteStoragePermission() {
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                Snackbar.make(contentView, "Storage access is required to save your App-Cards!", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Ok", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                ActivityCompat.requestPermissions(MainActivity.this, new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, WRITE_STORAGE_PERMISSION);
+                            }
+                        });
+
+            } else {
+                Snackbar.make(contentView, "Requesting permission to write to storage", Snackbar.LENGTH_LONG).show();
+
+                ActivityCompat.requestPermissions(MainActivity.this, new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_STORAGE_PERMISSION);
+            }
+
+        }
+
+    }
+
+    private void getNotificationAccessPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE)) {
+
+                Snackbar.make(contentView, "Storage access is required to save your App-Cards!", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Ok", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                ActivityCompat.requestPermissions(MainActivity.this, new String[] { Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE }, NOTIFICATION_PERMISSION);
+                            }
+                        });
+
+            } else {
+                Snackbar.make(contentView, "Requesting permission to read notifications", Snackbar.LENGTH_LONG).show();
+
+                ActivityCompat.requestPermissions(MainActivity.this, new String[] { Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE}, NOTIFICATION_PERMISSION);
+            }
+
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        for (Integer i : grantResults) {
+            Log.i("MAIN", "Value: " + i +  " " + requestCode);
+        }
+        if (requestCode == READ_STORAGE_PERMISSION) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Snackbar.make(contentView, "Permission granted! Cards can now be saved.", Snackbar.LENGTH_LONG).show();
+            } else {
+                Snackbar.make(contentView, "Permission denied! Cards won't be saved now..", Snackbar.LENGTH_LONG).show();
+            }
+        } else if (requestCode == WRITE_STORAGE_PERMISSION) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Snackbar.make(contentView, "Permission granted! Cards can now be used!", Snackbar.LENGTH_LONG).show();
+            } else {
+                Snackbar.make(contentView, "Permission denied! Cards can't be used..", Snackbar.LENGTH_LONG).show();
+            }
+        } else if (requestCode == NOTIFICATION_PERMISSION) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Snackbar.make(contentView, "Permission granted! Can read notifications now", Snackbar.LENGTH_LONG).show();
+            } else {
+                Snackbar.make(contentView, "Permission denied! Lighting won't work now..", Snackbar.LENGTH_LONG).show();
+            }
+        }
+
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -383,18 +509,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onPause() {
-        cleanUp();
-        super.onPause();
-    }
-
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
         cleanUp();
         super.onSaveInstanceState(outState);
     }
 
     private void cleanUp() {
+        if (appListDialog != null) {
+            appListDialog.dismiss();
+        }
+
         if (duplicationDialog != null) {
             duplicationDialog.dismiss();
         }
@@ -412,8 +536,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         closeOptionsMenu();
-
-        dia.dismiss();
         Data.writeToFile();
         if (colorPicker.initialized && colorPicker.colorAlertDialog.isShowing()) {
             colorPicker.colorAlertDialog.dismiss();

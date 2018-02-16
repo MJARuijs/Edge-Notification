@@ -44,5 +44,6 @@
     <string name="delete_button">Delete Button</string>
     <string name="add">Add</string>
     <string name="PLUS_SIGN">+</string>
+    <string name="get_permission">Get Permission</string>
 
 </resources>

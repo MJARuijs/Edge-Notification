@@ -24,7 +24,16 @@
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="@dimen/fab_margin"
         android:layout_marginEnd="@dimen/fab_margin"
+        android:onClick="onClickFAB"
         app:backgroundTint="@color/darkPrimary"
         app:srcCompat="@drawable/ic_add_white_48dp" />
+
+    <!--<android.support.v7.widget.RecyclerView-->
+        <!--android:id="@+id/recycler_dialog"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:scrollbars="vertical"-->
+        <!--android:visibility="visible" />-->
+
 
 </RelativeLayout>

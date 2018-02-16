@@ -90,7 +90,7 @@ public class EdgeLightingService extends Service implements SensorEventListener 
 
             boolean screenOff = false;
 
-            if (display.getState() == 1 && gyroscopeFlat) {
+            if (display.getState() == Display.STATE_OFF && gyroscopeFlat) {
                 screenOff = true;
                 PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
